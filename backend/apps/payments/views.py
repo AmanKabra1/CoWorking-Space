@@ -276,7 +276,6 @@ def stripe_webhook(request):
     if request.method != 'POST':
         return HttpResponse(status=405)
 
-    import stripe
     from django.conf import settings
 
     payload = request.body
