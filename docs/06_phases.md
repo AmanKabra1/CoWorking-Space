@@ -334,14 +334,46 @@ GET                               /api/v1/notifications/unread-count/
 
 ---
 
-## Phase 8 — Analytics, Reports, Audit Logs 🔜
+## Phase 8 — Analytics, Reports, Audit Logs ✅ COMPLETE
+**Date:** 2026-06-08
 **Scope:** Backend only
 
-### What will be built
-- `apps/analytics` — aggregated dashboards (revenue, occupancy, facility usage)
-- Report export: PDF (ReportLab) and Excel (openpyxl)
-- `apps/audit` — `AuditLog` model tracking every significant action
-  (login, booking, approval, payment, document upload)
+### What was built
+
+#### apps/analytics — Aggregated Dashboards + Report Export
+- No models — purely computed from existing data via Django ORM aggregations
+- `DashboardView` — KPI summary: revenue totals, booking counts by status, desk/parking occupancy rates, maintenance open/in-progress counts, platform stats (Super Admin)
+- `RevenueAnalyticsView` — revenue grouped by month or day, totals, top 10 companies (Super Admin)
+- `BookingAnalyticsView` — by status, top facilities, by day-of-week heatmap, avg duration
+- `OccupancyView` — desk (dedicated/hot-desk) and parking (car/bike/EV) occupancy rates
+- `RevenueReportView` — download PDF or Excel (`?format=pdf|excel&start=&end=`)
+- `BookingReportView` — download PDF or Excel
+- PDF: ReportLab styled tables with dark headers (already installed)
+- Excel: openpyxl workbooks with bold headers and column widths
+
+#### apps/audit — Immutable Audit Trail
+- `AuditLog` model: 25 action types, `resource_type` + `resource_id`, IP address, JSONField extra
+- DB indexes on `(action, created_at)` and `(resource_type, resource_id)` for fast lookups
+- `log_action(user, action, ...)` helper in `audit/utils.py` — call from any view
+- Read-only API: Super Admin sees all; Company Admin sees own company's logs
+- Admin: no add/change/delete — tamper-proof
+- `openpyxl==3.1.5` added to base requirements
+
+### API endpoints delivered
+```
+GET   /api/v1/analytics/dashboard/                 ← role-scoped KPI summary
+GET   /api/v1/analytics/revenue/?start=&end=&period=monthly|daily
+GET   /api/v1/analytics/bookings/?start=&end=
+GET   /api/v1/analytics/occupancy/
+GET   /api/v1/analytics/reports/revenue/?format=pdf|excel&start=&end=
+GET   /api/v1/analytics/reports/bookings/?format=pdf|excel&start=&end=
+
+GET   /api/v1/audit/                               ← read-only, filterable
+GET   /api/v1/audit/{id}/
+```
+
+### Audit actions tracked (25 types)
+`user_login` · `user_logout` · `user_created` · `booking_created` · `booking_approved` · `booking_rejected` · `booking_cancelled` · `invoice_created` · `invoice_sent` · `payment_recorded` · `document_uploaded` · `maintenance_created` · `maintenance_resolved` · `company_created` · `company_status_changed` · `visitor_checked_in` · `application_submitted` · `application_accepted` · _(+7 more)_
 
 ---
 
