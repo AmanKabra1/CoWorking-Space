@@ -21,7 +21,7 @@ import type {
 // ─── Auth ─────────────────────────────────────────────────
 export const authService = {
   login: (email: string, password: string) =>
-    api.post<{ access: string; refresh: string }>('/auth/login/', { email, password }).then(r => r.data),
+    api.post<{ user: User; tokens: { access: string; refresh: string } }>('/auth/login/', { email, password }).then(r => r.data),
   logout: (refresh: string) =>
     api.post('/auth/logout/', { refresh }),
   me: () =>

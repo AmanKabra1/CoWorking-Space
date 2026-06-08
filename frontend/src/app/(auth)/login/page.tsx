@@ -34,9 +34,8 @@ export default function LoginPage() {
     setLoading(true)
     try {
       const res = await authService.login(data.email, data.password)
-      setTokens(res.access, res.refresh)
-      const profile = await authService.me()
-      setUser(profile)
+      setTokens(res.tokens.access, res.tokens.refresh)
+      setUser(res.user)
       router.push('/dashboard')
     } catch {
       toast({ title: 'Login failed', description: 'Invalid email or password.', variant: 'destructive' })

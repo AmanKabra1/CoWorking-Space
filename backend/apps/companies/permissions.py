@@ -1,5 +1,4 @@
 from rest_framework.permissions import BasePermission, SAFE_METHODS
-from apps.accounts.models import User
 
 
 class CanViewOwnCompany(BasePermission):

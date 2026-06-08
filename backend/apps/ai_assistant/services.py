@@ -96,7 +96,8 @@ Avoid already-booked slots. Return a JSON array with this structure:
 Return ONLY the JSON array, no extra text."""
 
     response = model.generate_content(prompt)
-    import json, re
+    import json
+    import re
     text = response.text.strip()
     # Extract JSON array from response
     match = re.search(r'\[.*\]', text, re.DOTALL)
@@ -168,7 +169,8 @@ Return ONLY valid JSON, no explanation.
 Example output: {{"status": "pending", "booking_date": "2026-07-01"}}"""
 
     response = model.generate_content(prompt)
-    import json, re
+    import json
+    import re
     text = response.text.strip()
     match = re.search(r'\{.*\}', text, re.DOTALL)
     if match:
