@@ -186,15 +186,47 @@ GET                             /api/v1/billing/payments/{id}/
 
 ---
 
-## Phase 5 — Startup Incubation 🔜
+## Phase 5 — Startup Incubation ✅ COMPLETE
+**Date:** 2026-06-08
 **Scope:** Backend only
 
-### What will be built
-- `apps/incubation` — `StartupProfile`, `IncubationApplication`
-- Pitch deck + business plan upload (MinIO storage)
-- Application review workflow: apply → under review → accept/reject
-- Mentor and investor note-taking
-- Funding request tracking
+### What was built
+- `apps/incubation` — 4 models: `StartupProfile`, `IncubationApplication`, `ApplicationNote`, `FundingRound`
+- `StartupProfile` — one per company: industry, stage, team size, logo, pitch deck upload, business plan upload
+- `IncubationApplication` — apply per cohort (e.g. 2026-Q1); problem statement, solution, market size, traction, funding ask
+- Application review workflow: `draft → submitted → under_review → accepted / rejected / withdrawn`
+- `ApplicationNote` — internal (Super Admin only) and public notes on any application
+- `FundingRound` — track funding rounds (pre-seed, seed, Series A…) per startup, with amount sought vs raised
+- RBAC: Company Admin manages own startup; Super Admin reviews all applications
+- File uploads: pitch deck + business plan stored in `MEDIA_ROOT/incubation/` (S3/MinIO-ready via django-storages)
+- Django admin with bulk accept/reject/review actions, note inline
+- 1 migration: `incubation.0001_initial`
+
+### API endpoints delivered
+```
+GET/POST                       /api/v1/incubation/profiles/
+GET/PUT/PATCH/DELETE           /api/v1/incubation/profiles/{id}/
+
+GET/POST                       /api/v1/incubation/applications/
+GET/PUT/PATCH/DELETE           /api/v1/incubation/applications/{id}/
+POST                           /api/v1/incubation/applications/{id}/submit/
+POST                           /api/v1/incubation/applications/{id}/review/      (Super Admin)
+POST                           /api/v1/incubation/applications/{id}/accept/      (Super Admin)
+POST                           /api/v1/incubation/applications/{id}/reject/      body: {"reason": "..."}
+POST                           /api/v1/incubation/applications/{id}/withdraw/
+GET                            /api/v1/incubation/applications/{id}/notes/
+POST                           /api/v1/incubation/applications/{id}/notes/add/
+
+GET/POST                       /api/v1/incubation/funding/
+GET/PUT/PATCH/DELETE           /api/v1/incubation/funding/{id}/
+```
+
+### Application state machine
+```
+CREATE ──> DRAFT ──> SUBMITTED ──> UNDER_REVIEW ──> ACCEPTED
+                │                              └──> REJECTED
+                └──> WITHDRAWN (from DRAFT or SUBMITTED)
+```
 
 ---
 
