@@ -269,15 +269,68 @@ GET                               /api/v1/documents/versions/{id}/download/ down
 
 ---
 
-## Phase 7 — Maintenance, Visitors, Notifications 🔜
+## Phase 7 — Maintenance, Visitors, Notifications ✅ COMPLETE
+**Date:** 2026-06-08
 **Scope:** Backend only
 
-### What will be built
-- `apps/maintenance` — ticket system (create → assign → in progress → resolved)
-- `apps/visitors` — visitor pass, QR entry, check-in/out log
-- `apps/notifications` — in-app + email notification system
-- Brevo email integration: booking confirmations, reminders, contract expiry alerts
-- Celery beat tasks for scheduled reminders
+### What was built
+
+#### apps/maintenance — Ticket System
+- `MaintenanceTicket` model with auto-numbered tickets (`TKT-YYYY-NNNN`)
+- 9 categories: electrical, plumbing, HVAC, internet, furniture, cleaning, security, elevator, other
+- Priority levels: low / medium / high / critical
+- State machine: `open → assigned → in_progress → resolved → closed`
+- Actions: assign (Super Admin), start, resolve (with resolution notes), close
+
+#### apps/visitors — Visitor Pass & QR Entry
+- `VisitorPass` model with auto-generated 8-char unique pass code (e.g. `AB3F9D1E`)
+- State machine: `scheduled → checked_in → checked_out / cancelled`
+- Valid time window: `valid_from` + `valid_until` fields with validation
+- `GET /api/v1/visitors/verify/{pass_code}/` — unauthenticated QR-scan endpoint
+- Check-in / check-out with timestamp recording
+
+#### apps/notifications — In-App + Email
+- `Notification` model: 10 event types, `is_read`, `related_id/type` for deep links
+- `create_for_user()` / `create_for_company()` class methods for bulk creation
+- Brevo SMTP email via Django's `send_mail` (configured in `production.py`)
+- Endpoints: list, mark-read, mark-all-read, unread-count
+
+#### Celery Tasks (notifications/tasks.py)
+| Task | Trigger | Who gets notified |
+|---|---|---|
+| `notify_booking_status` | booking approved/rejected/cancelled | booker |
+| `notify_invoice_sent` | invoice sent | company admins |
+| `notify_ticket_assigned` | ticket assigned | assignee |
+| `notify_ticket_resolved` | ticket resolved | reporter |
+| `notify_visitor_arrival` | visitor check-in | host |
+| `check_overdue_invoices` | **daily 9 AM** (Celery Beat) | company admins |
+
+- `django-celery-beat` + `django-celery-results` added to base requirements
+- Beat schedule defined in `CELERY_BEAT_SCHEDULE` (settings/base.py)
+- All tasks: `max_retries=3`, 60s backoff
+
+### API endpoints delivered
+```
+GET/POST                          /api/v1/maintenance/tickets/
+GET/PUT/PATCH/DELETE              /api/v1/maintenance/tickets/{id}/
+POST                              /api/v1/maintenance/tickets/{id}/assign/    body: {"assigned_to": uuid}
+POST                              /api/v1/maintenance/tickets/{id}/start/
+POST                              /api/v1/maintenance/tickets/{id}/resolve/   body: {"resolution_notes": "..."}
+POST                              /api/v1/maintenance/tickets/{id}/close/
+
+GET/POST                          /api/v1/visitors/passes/
+GET/PUT/PATCH/DELETE              /api/v1/visitors/passes/{id}/
+POST                              /api/v1/visitors/passes/{id}/check-in/
+POST                              /api/v1/visitors/passes/{id}/check-out/
+POST                              /api/v1/visitors/passes/{id}/cancel/
+GET                               /api/v1/visitors/verify/{pass_code}/        ← no auth, QR scan
+
+GET                               /api/v1/notifications/
+GET                               /api/v1/notifications/{id}/
+POST                              /api/v1/notifications/{id}/mark-read/
+POST                              /api/v1/notifications/mark-all-read/
+GET                               /api/v1/notifications/unread-count/
+```
 
 ---
 
