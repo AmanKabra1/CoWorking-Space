@@ -173,3 +173,88 @@ export interface RevenueData {
   by_period: { period: string; invoiced: number; invoice_count: number }[]
   totals: { invoiced: number; paid: number; invoice_count: number }
 }
+
+// ─── Chat ─────────────────────────────────────────────────
+export interface ChatRoom {
+  id: string
+  name: string
+  room_type: 'company_general' | 'direct'
+  company: string
+  company_name: string
+  last_message: { content: string; created_at: string } | null
+  updated_at: string
+}
+
+export interface ChatMessage {
+  id: string
+  room: string
+  sender: string | null
+  sender_name: string
+  content: string
+  message_type: 'text' | 'system'
+  is_deleted: boolean
+  created_at: string
+}
+
+// ─── Community ────────────────────────────────────────────
+export interface Post {
+  id: string
+  post_type: 'announcement' | 'general'
+  title: string
+  content: string
+  author: string
+  author_name: string
+  company: string | null
+  company_name: string | null
+  visibility: 'company' | 'platform'
+  is_pinned: boolean
+  comment_count: number
+  created_at: string
+}
+
+export interface Event {
+  id: string
+  title: string
+  description: string
+  start_datetime: string
+  end_datetime: string
+  location: string
+  organizer: string
+  organizer_name: string
+  company: string | null
+  company_name: string | null
+  max_attendees: number | null
+  is_public: boolean
+  rsvp_count: number
+  my_rsvp: 'attending' | 'maybe' | 'declined' | null
+}
+
+// ─── E-Sign ───────────────────────────────────────────────
+export interface SignatureRecord {
+  id: string
+  request: string
+  signer: string | null
+  signer_email: string
+  signer_name: string
+  order: number
+  status: 'pending' | 'signed' | 'declined'
+  signed_at: string | null
+  decline_reason: string
+  created_at: string
+}
+
+export interface SignatureRequest {
+  id: string
+  title: string
+  document_file: string
+  message: string
+  created_by: string
+  created_by_name: string
+  company: string
+  company_name: string
+  status: 'draft' | 'pending' | 'partially_signed' | 'completed' | 'cancelled' | 'expired'
+  expires_at: string | null
+  certificate_file: string | null
+  records: SignatureRecord[]
+  created_at: string
+}

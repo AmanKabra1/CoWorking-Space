@@ -44,15 +44,19 @@ jobs:
 
       - name: Django system check
         working-directory: backend
-        run: python manage.py check --deploy --fail-level WARNING 2>&1 | grep -v "WARNINGS" || python manage.py check
+        run: python manage.py check
+
+      - name: Check for missing migration files
+        working-directory: backend
+        run: python manage.py makemigrations --check --dry-run --no-input
+
+      - name: Apply migrations
+        working-directory: backend
+        run: python manage.py migrate --no-input
 
       - name: Check for unapplied migrations
         working-directory: backend
         run: python manage.py migrate --check
-
-      - name: Validate migrations are consistent
-        working-directory: backend
-        run: python manage.py migrate --run-syncdb 2>/dev/null || true
 
       - name: Lint with flake8
         working-directory: backend

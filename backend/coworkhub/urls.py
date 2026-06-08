@@ -29,6 +29,9 @@ urlpatterns = [
     path('api/v1/notifications/', include('apps.notifications.urls')),
     path('api/v1/analytics/', include('apps.analytics.urls')),
     path('api/v1/audit/', include('apps.audit.urls')),
+    path('api/v1/chat/', include('apps.chat.urls')),
+    path('api/v1/community/', include('apps.community.urls')),
+    path('api/v1/esign/', include('apps.esign.urls')),
 
     # OpenAPI
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

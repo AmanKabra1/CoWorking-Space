@@ -15,6 +15,9 @@ import {
   BarChart3,
   LogOut,
   ChevronRight,
+  MessageSquare,
+  Globe,
+  FileSignature,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/auth'
@@ -30,6 +33,9 @@ const NAV_ITEMS = [
   { href: '/documents', label: 'Documents', icon: FolderOpen, roles: ['super_admin', 'company_admin', 'employee'] },
   { href: '/analytics', label: 'Analytics', icon: BarChart3, roles: ['super_admin', 'company_admin'] },
   { href: '/companies', label: 'Companies', icon: Building2, roles: ['super_admin'] },
+  { href: '/chat', label: 'Chat', icon: MessageSquare, roles: ['super_admin', 'company_admin', 'employee'] },
+  { href: '/community', label: 'Community', icon: Globe, roles: ['super_admin', 'company_admin', 'employee'] },
+  { href: '/esign', label: 'E-Sign', icon: FileSignature, roles: ['super_admin', 'company_admin'] },
   { href: '/notifications', label: 'Notifications', icon: Bell, roles: ['super_admin', 'company_admin', 'employee'] },
 ]
 

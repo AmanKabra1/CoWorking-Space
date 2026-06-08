@@ -11,6 +11,11 @@ import type {
   Notification,
   DashboardData,
   RevenueData,
+  ChatRoom,
+  ChatMessage,
+  Post,
+  Event,
+  SignatureRequest,
 } from '@/types'
 
 // ─── Auth ─────────────────────────────────────────────────
@@ -146,4 +151,34 @@ export const analyticsService = {
     api.get<RevenueData>('/analytics/revenue/', { params }).then(r => r.data),
   downloadReport: (type: 'revenue' | 'bookings', format: 'pdf' | 'excel', params?: Record<string, string>) =>
     api.get(`/analytics/reports/${type}/`, { params: { format, ...params }, responseType: 'blob' }).then(r => r.data),
+}
+
+// ─── Chat ─────────────────────────────────────────────────
+export const chatService = {
+  getGeneralRoom: () =>
+    api.get<ChatRoom>('/chat/rooms/company-general/').then(r => r.data),
+  listRooms: () =>
+    api.get<PaginatedResponse<ChatRoom>>('/chat/rooms/').then(r => r.data),
+  listMessages: (roomId: string) =>
+    api.get<PaginatedResponse<ChatMessage>>('/chat/messages/', { params: { room: roomId } }).then(r => r.data),
+}
+
+// ─── Community ────────────────────────────────────────────
+export const communityService = {
+  listPosts: (params?: Record<string, string>) =>
+    api.get<PaginatedResponse<Post>>('/community/posts/', { params }).then(r => r.data),
+  listEvents: () =>
+    api.get<PaginatedResponse<Event>>('/community/events/').then(r => r.data),
+  rsvp: (eventId: string, status: string) =>
+    api.post(`/community/events/${eventId}/rsvp/`, { status }).then(r => r.data),
+}
+
+// ─── E-Sign ───────────────────────────────────────────────
+export const esignService = {
+  list: () =>
+    api.get<PaginatedResponse<SignatureRequest>>('/esign/requests/').then(r => r.data),
+  create: (data: FormData) =>
+    api.post<SignatureRequest>('/esign/requests/', data, { headers: { 'Content-Type': 'multipart/form-data' } }).then(r => r.data),
+  cancel: (id: string) =>
+    api.post(`/esign/requests/${id}/cancel/`).then(r => r.data),
 }
