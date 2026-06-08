@@ -229,6 +229,26 @@ export interface Event {
   my_rsvp: 'attending' | 'maybe' | 'declined' | null
 }
 
+// ─── Payments ─────────────────────────────────────────────
+export interface PaymentGateway {
+  id: number
+  provider: 'razorpay' | 'stripe'
+  api_key: string
+  is_active: boolean
+  created_at: string
+}
+
+export interface PaymentOrder {
+  id: number
+  invoice: number
+  provider: string
+  gateway_order_id: string
+  amount: string
+  currency: string
+  status: 'pending' | 'paid' | 'failed' | 'refunded'
+  created_at: string
+}
+
 // ─── E-Sign ───────────────────────────────────────────────
 export interface SignatureRecord {
   id: string

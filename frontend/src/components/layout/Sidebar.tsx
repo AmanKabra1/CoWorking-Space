@@ -18,6 +18,7 @@ import {
   MessageSquare,
   Globe,
   FileSignature,
+  CreditCard,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/auth'
@@ -36,6 +37,7 @@ const NAV_ITEMS = [
   { href: '/chat', label: 'Chat', icon: MessageSquare, roles: ['super_admin', 'company_admin', 'employee'] },
   { href: '/community', label: 'Community', icon: Globe, roles: ['super_admin', 'company_admin', 'employee'] },
   { href: '/esign', label: 'E-Sign', icon: FileSignature, roles: ['super_admin', 'company_admin'] },
+  { href: '/payments', label: 'Payments', icon: CreditCard, roles: ['super_admin', 'company_admin'] },
   { href: '/notifications', label: 'Notifications', icon: Bell, roles: ['super_admin', 'company_admin', 'employee'] },
 ]
 

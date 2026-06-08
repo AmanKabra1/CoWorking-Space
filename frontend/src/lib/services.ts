@@ -16,6 +16,8 @@ import type {
   Post,
   Event,
   SignatureRequest,
+  PaymentGateway,
+  PaymentOrder,
 } from '@/types'
 
 // ─── Auth ─────────────────────────────────────────────────
@@ -171,6 +173,22 @@ export const communityService = {
     api.get<PaginatedResponse<Event>>('/community/events/').then(r => r.data),
   rsvp: (eventId: string, status: string) =>
     api.post(`/community/events/${eventId}/rsvp/`, { status }).then(r => r.data),
+}
+
+// ─── Payments ─────────────────────────────────────────────
+export const paymentService = {
+  getGateway: () =>
+    api.get<PaymentGateway>('/payments/gateways/').then(r => r.data),
+  saveGateway: (data: Partial<PaymentGateway> & { api_secret?: string }) =>
+    api.post<PaymentGateway>('/payments/gateways/', data).then(r => r.data),
+  listOrders: (params?: Record<string, string>) =>
+    api.get<PaginatedResponse<PaymentOrder>>('/payments/payment-orders/', { params }).then(r => r.data),
+  createOrder: (invoiceId: number) =>
+    api.post<{ order_id: number; gateway_order_id: string; amount: number; currency: string; key: string; provider: string; client_secret?: string }>(
+      '/payments/payment-orders/create_order/', { invoice_id: invoiceId }
+    ).then(r => r.data),
+  verifyPayment: (orderId: number, data: Record<string, string>) =>
+    api.post(`/payments/payment-orders/${orderId}/verify/`, data).then(r => r.data),
 }
 
 // ─── E-Sign ───────────────────────────────────────────────
