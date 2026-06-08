@@ -57,25 +57,25 @@ export default function AnalyticsPage() {
 
   const isLoading = loadingRevenue || loadingBookings || loadingOccupancy
 
-  const totalRevenue: number = revenueData?.totals?.paid ?? revenueData?.total_paid ?? 0
+  const totalRevenue: number = revenueData?.totals?.paid ?? 0
   const totalBookings: number = bookingsData?.total ?? 0
   const avgOccupancy: number = occupancyData?.average_rate ?? 0
 
   const revenueRows: { label: string; amount: number }[] = (() => {
     if (revenueData?.by_company) {
-      return (revenueData.by_company as { company_name?: string; name?: string; total?: number; amount?: number }[]).map((r) => ({
+      return revenueData.by_company.map((r) => ({
         label: r.company_name ?? r.name ?? '—',
         amount: r.total ?? r.amount ?? 0,
       }))
     }
     if (revenueData?.by_period) {
-      return (revenueData.by_period as { period: string; paid?: number; invoiced?: number }[]).map((r) => ({
+      return revenueData.by_period.map((r) => ({
         label: r.period,
         amount: r.paid ?? r.invoiced ?? 0,
       }))
     }
     if (revenueData?.monthly) {
-      return (revenueData.monthly as { month?: string; period?: string; amount?: number; paid?: number }[]).map((r) => ({
+      return revenueData.monthly.map((r) => ({
         label: r.month ?? r.period ?? '—',
         amount: r.amount ?? r.paid ?? 0,
       }))
