@@ -31,6 +31,11 @@ INSTALLED_APPS = [
     'apps.ai_assistant.apps.AiAssistantConfig',
     'apps.incubation.apps.IncubationConfig',
     'apps.documents.apps.DocumentsConfig',
+    'apps.maintenance.apps.MaintenanceConfig',
+    'apps.visitors.apps.VisitorsConfig',
+    'apps.notifications.apps.NotificationsConfig',
+    'django_celery_beat',
+    'django_celery_results',
 ]
 
 MIDDLEWARE = [
@@ -155,6 +160,17 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Kolkata'
 CELERY_TASK_TRACK_STARTED = True
+
+# ─── Celery Beat schedule ─────────────────────────────────
+from celery.schedules import crontab  # noqa: E402
+
+CELERY_BEAT_SCHEDULE = {
+    'check-overdue-invoices-daily': {
+        'task': 'apps.notifications.tasks.check_overdue_invoices',
+        'schedule': crontab(hour=9, minute=0),  # 9 AM IST daily
+    },
+}
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='django-db')
 
 # ─── AI / Gemini ──────────────────────────────────────────
 GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
