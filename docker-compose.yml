@@ -1,0 +1,53 @@
+version: '3.9'
+
+services:
+  backend:
+    build: ./backend
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend:/app
+      - media_volume:/app/media
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=coworkhub.settings.development
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  celery_worker:
+    build: ./backend
+    command: celery -A coworkhub worker --loglevel=info --concurrency=4
+    volumes:
+      - ./backend:/app
+    environment:
+      - DJANGO_SETTINGS_MODULE=coworkhub.settings.development
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  celery_beat:
+    build: ./backend
+    command: celery -A coworkhub beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - ./backend:/app
+    environment:
+      - DJANGO_SETTINGS_MODULE=coworkhub.settings.development
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+volumes:
+  media_volume:
