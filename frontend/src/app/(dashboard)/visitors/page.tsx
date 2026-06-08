@@ -31,7 +31,7 @@ export default function VisitorsPage() {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState<InviteForm>(EMPTY_FORM)
 
-  const { data: passes, isLoading, isError } = useQuery<VisitorPass[]>({
+  const { data: passes = [], isLoading, isError } = useQuery<VisitorPass[]>({
     queryKey: ['visitors'],
     queryFn: () => visitorService.list(),
   })
