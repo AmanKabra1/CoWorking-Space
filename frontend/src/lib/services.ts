@@ -132,7 +132,7 @@ export const maintenanceService = {
 // ─── Visitors ─────────────────────────────────────────────
 export const visitorService = {
   list: (params?: Record<string, string>) =>
-    api.get<VisitorPass[]>('/visitors/passes/', { params }).then(r => r.data),
+    api.get<PaginatedResponse<VisitorPass>>('/visitors/passes/', { params }).then(r => r.data.results ?? []),
   create: (data: Partial<VisitorPass>) =>
     api.post<VisitorPass>('/visitors/passes/', data).then(r => r.data),
   approve: (id: string) =>
@@ -176,7 +176,7 @@ export const analyticsService = {
 // ─── Incubation ───────────────────────────────────────────
 export const incubationService = {
   list: () =>
-    api.get<IncubationProfile[]>('/incubation/profiles/').then(r => r.data),
+    api.get<PaginatedResponse<IncubationProfile>>('/incubation/profiles/').then(r => r.data.results ?? []),
   applications: () =>
     api.get('/incubation/applications/').then(r => r.data),
 }
@@ -184,7 +184,7 @@ export const incubationService = {
 // ─── Documents ────────────────────────────────────────────
 export const documentService = {
   list: () =>
-    api.get<Document[]>('/documents/').then(r => r.data),
+    api.get<PaginatedResponse<Document>>('/documents/').then(r => r.data.results ?? []),
   upload: (formData: FormData) =>
     api.post<Document>('/documents/', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
