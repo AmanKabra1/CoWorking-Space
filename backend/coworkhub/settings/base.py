@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     'apps.notifications.apps.NotificationsConfig',
     'django_celery_beat',
     'django_celery_results',
+    'apps.analytics.apps.AnalyticsConfig',
+    'apps.audit.apps.AuditConfig',
 ]
 
 MIDDLEWARE = [
