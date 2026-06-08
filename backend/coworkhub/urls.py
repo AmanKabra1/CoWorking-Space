@@ -32,6 +32,7 @@ urlpatterns = [
     path('api/v1/chat/', include('apps.chat.urls')),
     path('api/v1/community/', include('apps.community.urls')),
     path('api/v1/esign/', include('apps.esign.urls')),
+    path('api/v1/payments/', include('apps.payments.urls')),
 
     # OpenAPI
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

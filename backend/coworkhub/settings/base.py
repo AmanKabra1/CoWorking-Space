@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'apps.chat.apps.ChatConfig',
     'apps.community.apps.CommunityConfig',
     'apps.esign.apps.EsignConfig',
+    'apps.payments.apps.PaymentsConfig',
 ]
 
 MIDDLEWARE = [
