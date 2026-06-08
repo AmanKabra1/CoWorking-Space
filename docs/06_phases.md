@@ -230,15 +230,42 @@ CREATE ──> DRAFT ──> SUBMITTED ──> UNDER_REVIEW ──> ACCEPTED
 
 ---
 
-## Phase 6 — Document Management 🔜
+## Phase 6 — Document Management ✅ COMPLETE
+**Date:** 2026-06-08
 **Scope:** Backend only
 
-### What will be built
-- `apps/documents` — `Document`, `DocumentVersion` models
-- MinIO integration for file storage (S3-compatible)
-- Version control: each upload creates a new version
-- Tags, search, per-company isolation
-- Document types: contract, lease agreement, invoice, pitch deck, meeting notes
+### What was built
+- `apps/documents` — 2 models: `Document`, `DocumentVersion`
+- `Document` — title, description, doc_type (10 types), tags (JSONField), per-company isolation, archive/restore
+- `DocumentVersion` — version-controlled file uploads (v1, v2, v3…); each upload = new version
+- Auto version numbering: `max(version_number) + 1` per document
+- File metadata stored: original filename, size (bytes + human-readable), MIME type, uploader
+- Version upload path: `documents/{company_id}/{document_id}/{filename}`
+- Download endpoints: latest version or specific version, served as `FileResponse` (no redirect)
+- S3 / MinIO production storage — `USE_S3=True` in `.env` activates `django-storages` S3Boto3 backend
+  (works with AWS S3, MinIO, DigitalOcean Spaces, Cloudflare R2; signed 1-hour download URLs)
+- Local disk storage for development — no external service required
+- RBAC: Super Admin sees all; Company Admin manages own; Employee read-only
+- Django admin with version inline, version count column
+- 1 migration: `documents.0001_initial`
+
+### API endpoints delivered
+```
+GET/POST                          /api/v1/documents/
+GET/PUT/PATCH/DELETE              /api/v1/documents/{id}/
+POST                              /api/v1/documents/{id}/upload-version/   multipart file upload
+GET                               /api/v1/documents/{id}/versions/         list all versions
+GET                               /api/v1/documents/{id}/download/         download latest version
+POST                              /api/v1/documents/{id}/archive/
+POST                              /api/v1/documents/{id}/restore/
+
+GET                               /api/v1/documents/versions/              all versions (filterable)
+GET                               /api/v1/documents/versions/{id}/
+GET                               /api/v1/documents/versions/{id}/download/ download specific version
+```
+
+### Document types
+`contract` · `lease_agreement` · `invoice` · `pitch_deck` · `meeting_notes` · `nda` · `policy` · `id_proof` · `agreement` · `other`
 
 ---
 

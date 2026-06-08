@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'apps.billing.apps.BillingConfig',
     'apps.ai_assistant.apps.AiAssistantConfig',
     'apps.incubation.apps.IncubationConfig',
+    'apps.documents.apps.DocumentsConfig',
 ]
 
 MIDDLEWARE = [
