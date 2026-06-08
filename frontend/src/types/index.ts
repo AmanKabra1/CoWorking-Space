@@ -186,8 +186,10 @@ export interface RevenueData {
   start: string
   end: string
   period: string
-  by_period: { period: string; invoiced: number; invoice_count: number }[]
+  by_period: { period: string; invoiced: number; paid?: number; invoice_count: number }[]
   totals: { invoiced: number; paid: number; invoice_count: number }
+  by_company?: { company_name?: string; name?: string; total?: number; amount?: number }[]
+  monthly?: { month?: string; period?: string; amount?: number; paid?: number }[]
 }
 
 // ─── Chat ─────────────────────────────────────────────────
