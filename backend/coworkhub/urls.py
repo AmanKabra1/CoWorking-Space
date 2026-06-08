@@ -11,6 +11,9 @@ from drf_spectacular.views import (
 urlpatterns = [
     path('admin/', admin.site.urls),
 
+    # Health check (no auth required — used by load balancers / Render)
+    path('api/', include('apps.core.urls')),
+
     # API v1
     path('api/v1/auth/', include('apps.accounts.urls')),
     path('api/v1/companies/', include('apps.companies.urls')),
