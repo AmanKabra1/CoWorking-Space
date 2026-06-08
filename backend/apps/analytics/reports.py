@@ -79,7 +79,7 @@ def generate_revenue_pdf(data, start, end):
 
 def generate_revenue_excel(data, start, end):
     import openpyxl
-    from openpyxl.styles import Font, PatternFill, Alignment
+    from openpyxl.styles import Font, PatternFill
 
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -169,7 +169,7 @@ def generate_booking_pdf(data, start, end):
 
 def generate_booking_excel(data, start, end):
     import openpyxl
-    from openpyxl.styles import Font, PatternFill
+    from openpyxl.styles import Font
 
     wb = openpyxl.Workbook()
     ws = wb.active

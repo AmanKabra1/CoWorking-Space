@@ -3,11 +3,10 @@ PDF invoice generator using ReportLab.
 Returns a BytesIO buffer ready for FileResponse streaming.
 """
 import io
-from decimal import Decimal
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.platypus import (
     SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, HRFlowable
@@ -33,7 +32,6 @@ def generate_invoice_pdf(invoice) -> io.BytesIO:
         topMargin=15 * mm,
         bottomMargin=20 * mm,
     )
-    styles = getSampleStyleSheet()
     story = []
 
     # ── Header ────────────────────────────────────────────────
@@ -141,7 +139,6 @@ def generate_invoice_pdf(invoice) -> io.BytesIO:
         totals_data.append([f'IGST @ {invoice.igst_rate}%', money(invoice.igst_amount)])
     totals_data.append(['TOTAL', money(invoice.total_amount)])
 
-    totals_style = ParagraphStyle('ts', fontName='Helvetica', fontSize=9)
     formatted = []
     for i, row in enumerate(totals_data):
         is_total = (i == len(totals_data) - 1)

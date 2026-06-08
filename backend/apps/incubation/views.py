@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from apps.accounts.permissions import IsSuperAdmin, IsSuperAdminOrCompanyAdmin
-from .models import StartupProfile, IncubationApplication, ApplicationNote, FundingRound
+from .models import StartupProfile, IncubationApplication, FundingRound
 from .serializers import (
     StartupProfileSerializer,
     IncubationApplicationSerializer,

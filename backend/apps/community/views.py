@@ -2,7 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Q
-from apps.community.models import Post, Comment, Event, EventRSVP
+from apps.community.models import Post, Event, EventRSVP
 from apps.community.serializers import (
     PostSerializer, CommentSerializer, EventSerializer, EventRSVPSerializer
 )

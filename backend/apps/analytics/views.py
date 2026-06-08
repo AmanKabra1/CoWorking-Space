@@ -8,7 +8,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.accounts.permissions import IsSuperAdmin
 from apps.billing.models import Invoice
 from apps.bookings.models import Booking
 from apps.companies.models import Company
@@ -239,8 +238,6 @@ class OccupancyView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user
-
         desk_stats = Desk.objects.aggregate(
             total=Count('id'),
             assigned=Count('id', filter=Q(company__isnull=False)),

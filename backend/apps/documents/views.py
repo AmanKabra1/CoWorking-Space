@@ -5,7 +5,7 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from apps.accounts.permissions import IsSuperAdmin, IsSuperAdminOrCompanyAdmin
+from apps.accounts.permissions import IsSuperAdminOrCompanyAdmin
 from .models import Document, DocumentVersion
 from .serializers import DocumentSerializer, DocumentVersionSerializer, UploadVersionSerializer
 
