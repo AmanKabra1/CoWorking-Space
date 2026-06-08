@@ -8,6 +8,8 @@ import type {
   Invoice,
   MaintenanceTicket,
   VisitorPass,
+  IncubationProfile,
+  Document,
   Notification,
   DashboardData,
   RevenueData,
@@ -130,13 +132,15 @@ export const maintenanceService = {
 // ─── Visitors ─────────────────────────────────────────────
 export const visitorService = {
   list: (params?: Record<string, string>) =>
-    api.get<PaginatedResponse<VisitorPass>>('/visitors/passes/', { params }).then(r => r.data),
-  create: (data: Partial<VisitorPass> & { host: string; company: string }) =>
+    api.get<VisitorPass[]>('/visitors/passes/', { params }).then(r => r.data),
+  create: (data: Partial<VisitorPass>) =>
     api.post<VisitorPass>('/visitors/passes/', data).then(r => r.data),
+  approve: (id: string) =>
+    api.post<VisitorPass>(`/visitors/passes/${id}/approve/`).then(r => r.data),
   checkIn: (id: string) =>
-    api.post<VisitorPass>(`/visitors/passes/${id}/check-in/`).then(r => r.data),
+    api.post<VisitorPass>(`/visitors/passes/${id}/check_in/`).then(r => r.data),
   checkOut: (id: string) =>
-    api.post<VisitorPass>(`/visitors/passes/${id}/check-out/`).then(r => r.data),
+    api.post<VisitorPass>(`/visitors/passes/${id}/check_out/`).then(r => r.data),
   verify: (code: string) =>
     api.get(`/visitors/verify/${code}/`).then(r => r.data),
 }
@@ -159,8 +163,34 @@ export const analyticsService = {
     api.get<DashboardData>('/analytics/dashboard/').then(r => r.data),
   revenue: (params?: { start?: string; end?: string; period?: string }) =>
     api.get<RevenueData>('/analytics/revenue/', { params }).then(r => r.data),
+  bookings: () =>
+    api.get('/analytics/bookings/').then(r => r.data),
+  occupancy: () =>
+    api.get('/analytics/occupancy/').then(r => r.data),
+  exportRevenue: () =>
+    api.get('/analytics/revenue/export/?format=pdf', { responseType: 'blob' }).then(r => r.data),
   downloadReport: (type: 'revenue' | 'bookings', format: 'pdf' | 'excel', params?: Record<string, string>) =>
     api.get(`/analytics/reports/${type}/`, { params: { format, ...params }, responseType: 'blob' }).then(r => r.data),
+}
+
+// ─── Incubation ───────────────────────────────────────────
+export const incubationService = {
+  list: () =>
+    api.get<IncubationProfile[]>('/incubation/profiles/').then(r => r.data),
+  applications: () =>
+    api.get('/incubation/applications/').then(r => r.data),
+}
+
+// ─── Documents ────────────────────────────────────────────
+export const documentService = {
+  list: () =>
+    api.get<Document[]>('/documents/').then(r => r.data),
+  upload: (formData: FormData) =>
+    api.post<Document>('/documents/', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(r => r.data),
+  delete: (id: number) =>
+    api.delete(`/documents/${id}/`),
 }
 
 // ─── Chat ─────────────────────────────────────────────────
