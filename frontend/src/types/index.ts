@@ -119,16 +119,24 @@ export interface VisitorPass {
   id: string
   visitor_name: string
   visitor_email: string
+  visitor_phone: string
+  host: { id: number; email: string; first_name: string; last_name: string }
+  company: number
   purpose: string
-  host_name: string
-  building_name: string | null
-  pass_code: string
-  status: 'expected' | 'checked_in' | 'checked_out' | 'cancelled'
-  scheduled_date: string
-  valid_from: string
-  valid_until: string
-  checked_in_at: string | null
-  checked_out_at: string | null
+  check_in: string | null
+  check_out: string | null
+  status: 'pending' | 'approved' | 'checked_in' | 'checked_out' | 'cancelled'
+  qr_code: string | null
+  created_at: string
+  // legacy fields kept for backward compatibility
+  host_name?: string
+  building_name?: string | null
+  pass_code?: string
+  scheduled_date?: string
+  valid_from?: string
+  valid_until?: string
+  checked_in_at?: string | null
+  checked_out_at?: string | null
 }
 
 export interface Notification {
@@ -254,6 +262,36 @@ export interface PaymentOrder {
   amount: string
   currency: string
   status: 'pending' | 'paid' | 'failed' | 'refunded'
+  created_at: string
+}
+
+// ─── Incubation ───────────────────────────────────────────
+export interface IncubationProfile {
+  id: number
+  company: { id: number; name: string }
+  stage: 'ideation' | 'mvp' | 'growth' | 'scaling'
+  sector: string
+  description: string
+  website: string
+  team_size: number
+  founded_year: number | null
+  mentor: { id: number; email: string; first_name: string; last_name: string } | null
+  status: 'active' | 'graduated' | 'inactive'
+  created_at: string
+}
+
+// ─── Documents ────────────────────────────────────────────
+export interface Document {
+  id: number
+  title: string
+  description: string
+  file: string
+  file_type: string
+  file_size: number
+  version: number
+  uploaded_by: { id: number; email: string; first_name: string; last_name: string }
+  company: number
+  is_public: boolean
   created_at: string
 }
 
