@@ -7,6 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-dev-key-change-in-production-123456789')
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -14,6 +15,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Third-party
+    'channels',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
@@ -38,6 +40,9 @@ INSTALLED_APPS = [
     'django_celery_results',
     'apps.analytics.apps.AnalyticsConfig',
     'apps.audit.apps.AuditConfig',
+    'apps.chat.apps.ChatConfig',
+    'apps.community.apps.CommunityConfig',
+    'apps.esign.apps.EsignConfig',
 ]
 
 MIDDLEWARE = [
@@ -72,6 +77,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'coworkhub.wsgi.application'
 ASGI_APPLICATION = 'coworkhub.asgi.application'
+
+# ─── Django Channels ──────────────────────────────────────
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': config(
+            'CHANNEL_LAYER_BACKEND',
+            default='channels.layers.InMemoryChannelLayer',
+        ),
+        'CONFIG': {
+            'hosts': [config('REDIS_URL', default='redis://localhost:6379/2')],
+        } if config('CHANNEL_LAYER_BACKEND', default='') == 'channels_redis.core.RedisChannelLayer' else {},
+    },
+}
 
 AUTH_USER_MODEL = 'accounts.User'
 
