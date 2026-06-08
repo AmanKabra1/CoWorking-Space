@@ -36,6 +36,14 @@ export const authService = {
     }),
 }
 
+// ─── Company Settings ─────────────────────────────────────
+export const companySettingsService = {
+  get: () =>
+    api.get<Company>('/companies/settings/').then(r => r.data),
+  update: (data: Partial<Company>) =>
+    api.patch<Company>('/companies/settings/', data).then(r => r.data),
+}
+
 // ─── Companies ────────────────────────────────────────────
 export const companyService = {
   list: (params?: Record<string, string>) =>

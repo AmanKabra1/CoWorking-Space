@@ -21,13 +21,21 @@ export interface User {
 export interface Company {
   id: string
   name: string
+  slug: string
   email: string
   phone: string
+  address?: string
+  city?: string
+  state?: string
+  pincode?: string
+  website?: string
+  gst_number?: string
+  pan_number?: string
   industry?: string
-  status: 'pending' | 'active' | 'suspended'
-  is_active: boolean
+  status: 'active' | 'inactive' | 'suspended'
   employee_count: number
   created_at: string
+  updated_at?: string
 }
 
 export interface Facility {
