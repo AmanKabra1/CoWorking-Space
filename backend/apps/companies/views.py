@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from drf_spectacular.utils import extend_schema, extend_schema_view
 
 from .models import Company
@@ -115,3 +116,45 @@ class CompanyViewSet(viewsets.ModelViewSet):
         company.status = new_status
         company.save(update_fields=['status', 'updated_at'])
         return Response(CompanySerializer(company).data)
+
+
+@extend_schema(tags=['Companies'])
+class CompanySettingsView(APIView):
+    """
+    GET /api/v1/companies/settings/  — retrieve current company profile.
+    PATCH /api/v1/companies/settings/ — update current company profile.
+
+    Resolves the company via TenantMiddleware (request.company) when available,
+    falling back to the authenticated user's company.
+    Accessible to company_admin and super_admin only.
+    """
+
+    permission_classes = [IsSuperAdminOrCompanyAdmin]
+
+    def _get_company(self, request):
+        company = getattr(request, 'company', None)
+        if company is None:
+            company = getattr(request.user, 'company', None)
+        return company
+
+    def get(self, request):
+        company = self._get_company(request)
+        if company is None:
+            return Response(
+                {'detail': 'No company associated with this account.'},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        serializer = CompanySerializer(company)
+        return Response(serializer.data)
+
+    def patch(self, request):
+        company = self._get_company(request)
+        if company is None:
+            return Response(
+                {'detail': 'No company associated with this account.'},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        serializer = CompanySerializer(company, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)

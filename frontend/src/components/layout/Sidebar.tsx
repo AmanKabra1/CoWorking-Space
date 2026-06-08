@@ -19,11 +19,20 @@ import {
   Globe,
   FileSignature,
   CreditCard,
+  Settings,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/auth'
+import type { Role } from '@/types'
 
-const NAV_ITEMS = [
+interface NavItem {
+  href: string
+  label: string
+  icon: React.ElementType
+  roles: Role[]
+}
+
+const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['super_admin', 'company_admin', 'employee'] },
   { href: '/facilities', label: 'Facilities', icon: Building2, roles: ['super_admin', 'company_admin', 'employee'] },
   { href: '/bookings', label: 'Bookings', icon: CalendarDays, roles: ['super_admin', 'company_admin', 'employee'] },
@@ -39,6 +48,7 @@ const NAV_ITEMS = [
   { href: '/esign', label: 'E-Sign', icon: FileSignature, roles: ['super_admin', 'company_admin'] },
   { href: '/payments', label: 'Payments', icon: CreditCard, roles: ['super_admin', 'company_admin'] },
   { href: '/notifications', label: 'Notifications', icon: Bell, roles: ['super_admin', 'company_admin', 'employee'] },
+  { href: '/settings', label: 'Settings', icon: Settings, roles: ['super_admin', 'company_admin'] },
 ]
 
 export function Sidebar() {
