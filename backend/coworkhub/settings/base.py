@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'apps.facilities.apps.FacilitiesConfig',
     'apps.bookings.apps.BookingsConfig',
     'apps.billing.apps.BillingConfig',
+    'apps.ai_assistant.apps.AiAssistantConfig',
 ]
 
 MIDDLEWARE = [
@@ -152,3 +153,6 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Kolkata'
 CELERY_TASK_TRACK_STARTED = True
+
+# ─── AI / Gemini ──────────────────────────────────────────
+GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
