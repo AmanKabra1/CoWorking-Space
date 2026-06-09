@@ -194,7 +194,6 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(hour=9, minute=0),  # 9 AM IST daily
     },
 }
-CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='django-db')
 
 # ─── AI / Gemini ──────────────────────────────────────────
 GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
