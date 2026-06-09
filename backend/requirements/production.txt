@@ -1,5 +1,6 @@
 -r base.txt
 gunicorn==23.0.0
 mysqlclient==2.2.4
+django-tidb==5.1.1
 django-celery-beat==2.7.0
 django-celery-results==2.5.1
