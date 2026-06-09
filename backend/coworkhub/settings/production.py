@@ -1,6 +1,11 @@
 from .base import *
 
 DEBUG = False
+
+# Require a real SECRET_KEY in production — never fall back to the insecure
+# dev default inherited from base settings.
+SECRET_KEY = config('SECRET_KEY')
+
 ALLOWED_HOSTS = config(
     'ALLOWED_HOSTS',
     default='',

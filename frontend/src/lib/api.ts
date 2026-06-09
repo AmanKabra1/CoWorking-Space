@@ -26,7 +26,9 @@ api.interceptors.response.use(
         const { data } = await axios.post(`${BASE_URL}/api/v1/auth/token/refresh/`, {
           refresh,
         })
-        useAuthStore.getState().setTokens(data.access, refresh!)
+        // Backend rotates refresh tokens and blacklists the old one, so persist
+        // the new refresh token when one is returned — reusing the old one fails.
+        useAuthStore.getState().setTokens(data.access, data.refresh ?? refresh!)
         original.headers.Authorization = `Bearer ${data.access}`
         return api(original)
       } catch {

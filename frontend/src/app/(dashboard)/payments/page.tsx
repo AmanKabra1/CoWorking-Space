@@ -47,7 +47,7 @@ export default function PaymentsPage() {
 
   const createOrderMutation = useMutation({
     mutationFn: (invoiceId: number) => paymentService.createOrder(invoiceId),
-    onSuccess: (data) => {
+    onSuccess: (data, invoiceId) => {
       if (data.provider === 'razorpay') {
         setActiveOrder({
           orderId: data.order_id,
@@ -56,7 +56,7 @@ export default function PaymentsPage() {
           currency: data.currency,
           key: data.key,
           provider: data.provider,
-          invoiceId: data.order_id,
+          invoiceId,
         })
       } else {
         toast({ title: 'Stripe checkout not supported in this UI yet.', variant: 'destructive' })
