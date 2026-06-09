@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema, extend_schema_view
 
 from apps.accounts.permissions import IsSuperAdminOrCompanyAdmin
+from apps.core.exporters import build_export_response
 from .models import Vendor, VendorBill
 from .serializers import VendorSerializer, VendorBillSerializer
 
@@ -81,6 +82,25 @@ class VendorBillViewSet(viewsets.ModelViewSet):
         bill.paid_at = timezone.now()
         bill.save(update_fields=['status', 'paid_at', 'updated_at'])
         return Response(VendorBillSerializer(bill).data)
+
+    @extend_schema(tags=['Vendors'])
+    @action(detail=False, methods=['get'], url_path='export')
+    def export(self, request):
+        """Download vendor bills as Excel / Word / PDF (?format=excel|word|pdf)."""
+        bills = self.filter_queryset(self.get_queryset())
+        headers = ['Bill #', 'Vendor', 'Building', 'Bill Date', 'Due Date', 'Amount', 'Tax', 'Total', 'Status']
+        rows = [
+            [
+                b.bill_number, b.vendor.name, b.building.name,
+                b.bill_date, b.due_date or '', b.amount, b.tax_amount,
+                b.total_amount, b.get_status_display(),
+            ]
+            for b in bills
+        ]
+        return build_export_response(
+            request.query_params.get('format'),
+            'vendor_bills', 'CoWorkHub — Vendor Bills', headers, rows,
+        )
 
     @extend_schema(tags=['Vendors'])
     @action(detail=False, methods=['get'], url_path='summary')

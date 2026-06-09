@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/shared/PageHeader'
+import { ExportButtons } from '@/components/shared/ExportButtons'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -66,7 +67,11 @@ export default function BookingsPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader title="Bookings" description="Manage facility reservations" />
+      <PageHeader
+        title="Bookings"
+        description="Manage facility reservations"
+        action={<ExportButtons filename="bookings" onExport={(f) => bookingService.export(f)} />}
+      />
 
       {isLoading ? (
         <div className="space-y-3">

@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema, extend_schema_view
 
 from apps.accounts.permissions import IsSuperAdminOrCompanyAdmin
+from apps.core.exporters import build_export_response
 from .models import InventoryItem, StockMovement
 from .serializers import (
     InventoryItemSerializer,
@@ -105,3 +106,22 @@ class InventoryItemViewSet(viewsets.ModelViewSet):
         item = self.get_object()
         qs = item.movements.select_related('performed_by').all()
         return Response(StockMovementSerializer(qs, many=True).data)
+
+    @extend_schema(tags=['Inventory'])
+    @action(detail=False, methods=['get'], url_path='export')
+    def export(self, request):
+        """Download the inventory list as Excel / Word / PDF (?format=excel|word|pdf)."""
+        items = self.filter_queryset(self.get_queryset())
+        headers = ['Item', 'Category', 'Building', 'Quantity', 'Unit', 'Reorder Level', 'Unit Cost', 'Low Stock']
+        rows = [
+            [
+                i.name, i.get_category_display(), i.building.name,
+                i.quantity, i.unit, i.reorder_level, i.unit_cost,
+                'Yes' if i.is_low_stock else 'No',
+            ]
+            for i in items
+        ]
+        return build_export_response(
+            request.query_params.get('format'),
+            'inventory', 'CoWorkHub — Inventory', headers, rows,
+        )
