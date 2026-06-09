@@ -11,6 +11,7 @@ from .serializers import (
     CalendarBookingSerializer,
 )
 from .permissions import CanCreateBooking, CanApproveBooking
+from apps.core.exporters import build_export_response
 
 
 @extend_schema_view(
@@ -212,3 +213,27 @@ class BookingViewSet(viewsets.ModelViewSet):
 
         serializer = CalendarBookingSerializer(qs.order_by('booking_date', 'start_time'), many=True)
         return Response(serializer.data)
+
+    @extend_schema(tags=['Bookings'])
+    @action(detail=False, methods=['get'], url_path='export')
+    def export(self, request):
+        """Download the visible bookings as Excel / Word / PDF (?format=excel|word|pdf)."""
+        bookings = self.filter_queryset(self.get_queryset())
+        headers = [
+            'Facility', 'Company', 'Booked By', 'Date', 'Start', 'End',
+            'Type', 'Payment', 'Amount', 'Status',
+        ]
+        rows = [
+            [
+                b.facility.name, b.company.name, b.booked_by.get_full_name(),
+                b.booking_date, b.start_time, b.end_time,
+                b.get_booking_type_display(),
+                'Required' if b.payment_required else 'Free',
+                b.total_amount, b.get_status_display(),
+            ]
+            for b in bookings
+        ]
+        return build_export_response(
+            request.query_params.get('format'),
+            'bookings', 'CoWorkHub — Bookings', headers, rows,
+        )

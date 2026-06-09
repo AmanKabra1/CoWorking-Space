@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/shared/PageHeader'
+import { ExportButtons } from '@/components/shared/ExportButtons'
 import { KPICard } from '@/components/shared/KPICard'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -98,7 +99,8 @@ export default function VendorsPage() {
         title="Vendors & Bills"
         description="Suppliers and their bills / expenses per building"
         action={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <ExportButtons filename="vendor_bills" onExport={(f) => vendorBillService.export(f)} />
             <Button variant="outline" onClick={() => setShowVendorForm(v => !v)}>
               {showVendorForm ? 'Close' : 'Add Vendor'}
             </Button>

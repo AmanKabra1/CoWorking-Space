@@ -26,6 +26,7 @@ import type {
   Vendor,
   VendorBill,
   VendorBillSummary,
+  ExportFormat,
 } from '@/types'
 
 // ─── Auth ─────────────────────────────────────────────────
@@ -103,6 +104,8 @@ export const bookingService = {
     api.post<Booking>(`/bookings/${id}/complete/`).then(r => r.data),
   pendingQueue: () =>
     api.get<PaginatedResponse<Booking>>('/bookings/pending-queue/').then(r => r.data),
+  export: (format: ExportFormat) =>
+    api.get('/bookings/export/', { params: { format }, responseType: 'blob' }).then(r => r.data),
 }
 
 // ─── Billing ──────────────────────────────────────────────
@@ -263,6 +266,8 @@ export const inventoryService = {
     api.get<InventoryItem[]>('/inventory/low-stock/').then(r => r.data),
   movements: (id: string) =>
     api.get<StockMovement[]>(`/inventory/${id}/movements/`).then(r => r.data),
+  export: (format: ExportFormat) =>
+    api.get('/inventory/export/', { params: { format }, responseType: 'blob' }).then(r => r.data),
 }
 
 // ─── Vendors ──────────────────────────────────────────────
@@ -290,6 +295,8 @@ export const vendorBillService = {
     api.post<VendorBill>(`/vendors/bills/${id}/mark-paid/`).then(r => r.data),
   summary: () =>
     api.get<VendorBillSummary>('/vendors/bills/summary/').then(r => r.data),
+  export: (format: ExportFormat) =>
+    api.get('/vendors/bills/export/', { params: { format }, responseType: 'blob' }).then(r => r.data),
 }
 
 // ─── E-Sign ───────────────────────────────────────────────

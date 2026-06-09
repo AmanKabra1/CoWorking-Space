@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/shared/PageHeader'
+import { ExportButtons } from '@/components/shared/ExportButtons'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -94,9 +95,12 @@ export default function InventoryPage() {
         title="Inventory"
         description="Pantry, canteen, water, appliances & supplies per building"
         action={
-          <Button onClick={() => setShowForm(v => !v)}>
-            {showForm ? 'Close' : 'Add Item'}
-          </Button>
+          <div className="flex items-center gap-2">
+            <ExportButtons filename="inventory" onExport={(f) => inventoryService.export(f)} />
+            <Button onClick={() => setShowForm(v => !v)}>
+              {showForm ? 'Close' : 'Add Item'}
+            </Button>
+          </div>
         }
       />
 

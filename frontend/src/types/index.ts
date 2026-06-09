@@ -338,6 +338,9 @@ export interface Building {
   is_active: boolean
 }
 
+// ─── Exports ──────────────────────────────────────────────
+export type ExportFormat = 'excel' | 'word' | 'pdf'
+
 // ─── Vendors ──────────────────────────────────────────────
 export type VendorCategory =
   | 'utilities' | 'catering' | 'cleaning' | 'maintenance' | 'supplies' | 'security' | 'internet' | 'other'
