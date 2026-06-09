@@ -46,12 +46,14 @@ jobs:
     name: Trigger Render deploy
     needs: build-and-push
     runs-on: ubuntu-latest
+    env:
+      RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
 
     steps:
       - name: Deploy via Render webhook
-        if: ${{ secrets.RENDER_DEPLOY_HOOK_URL != '' }}
+        if: env.RENDER_DEPLOY_HOOK_URL != ''
         run: |
-          curl -f -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" \
+          curl -f -X POST "$RENDER_DEPLOY_HOOK_URL" \
             -H "Content-Type: application/json" \
             -d '{"clearCache": false}'
           echo "Deploy triggered successfully"
