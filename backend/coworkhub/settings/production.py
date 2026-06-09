@@ -17,9 +17,11 @@ DATABASES = {
         'HOST': config('DB_HOST'),
         'PORT': config('DB_PORT', default='4000'),
         'OPTIONS': {
-            'ssl_ca': config('TIDB_SSL_CA', default=''),
-            'ssl_verify_cert': True,
-            'ssl_verify_identity': True,
+            # mysqlclient expects SSL nested under "ssl" (not ssl_ca/ssl_verify_*).
+            # ssl_mode=VERIFY_IDENTITY enforces TLS; TiDB Cloud certs are publicly
+            # signed, so the container's system CA bundle verifies them.
+            'ssl_mode': 'VERIFY_IDENTITY',
+            'ssl': {'ca': config('TIDB_SSL_CA', default='/etc/ssl/certs/ca-certificates.crt')},
             'charset': 'utf8mb4',
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
