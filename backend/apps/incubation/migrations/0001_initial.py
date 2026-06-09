@@ -18,44 +18,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='IncubationApplication',
-            fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('cohort', models.CharField(help_text='E.g. 2026-Q1', max_length=20)),
-                ('status', models.CharField(choices=[('draft', 'Draft'), ('submitted', 'Submitted'), ('under_review', 'Under Review'), ('accepted', 'Accepted'), ('rejected', 'Rejected'), ('withdrawn', 'Withdrawn')], default='draft', max_length=20)),
-                ('problem_statement', models.TextField()),
-                ('solution', models.TextField()),
-                ('market_size', models.TextField(blank=True)),
-                ('traction', models.TextField(blank=True)),
-                ('funding_ask', models.DecimalField(blank=True, decimal_places=2, max_digits=12, null=True)),
-                ('funding_type', models.CharField(blank=True, choices=[('grant', 'Grant'), ('pre_seed', 'Pre-Seed'), ('seed', 'Seed'), ('series_a', 'Series A'), ('series_b', 'Series B'), ('bridge', 'Bridge Round'), ('other', 'Other')], max_length=20)),
-                ('submitted_at', models.DateTimeField(blank=True, null=True)),
-                ('reviewed_at', models.DateTimeField(blank=True, null=True)),
-                ('rejection_reason', models.TextField(blank=True)),
-                ('reviewed_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='reviewed_applications', to=settings.AUTH_USER_MODEL)),
-            ],
-            options={
-                'ordering': ['-created_at'],
-            },
-        ),
-        migrations.CreateModel(
-            name='ApplicationNote',
-            fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('content', models.TextField()),
-                ('is_internal', models.BooleanField(default=True, help_text='Internal notes are visible to Super Admins only')),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='incubation_notes', to=settings.AUTH_USER_MODEL)),
-                ('application', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='notes', to='incubation.incubationapplication')),
-            ],
-            options={
-                'ordering': ['-created_at'],
-            },
-        ),
-        migrations.CreateModel(
             name='StartupProfile',
             fields=[
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
@@ -80,10 +42,45 @@ class Migration(migrations.Migration):
                 'ordering': ['-created_at'],
             },
         ),
-        migrations.AddField(
-            model_name='incubationapplication',
-            name='startup',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='applications', to='incubation.startupprofile'),
+        migrations.CreateModel(
+            name='IncubationApplication',
+            fields=[
+                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('cohort', models.CharField(help_text='E.g. 2026-Q1', max_length=20)),
+                ('status', models.CharField(choices=[('draft', 'Draft'), ('submitted', 'Submitted'), ('under_review', 'Under Review'), ('accepted', 'Accepted'), ('rejected', 'Rejected'), ('withdrawn', 'Withdrawn')], default='draft', max_length=20)),
+                ('problem_statement', models.TextField()),
+                ('solution', models.TextField()),
+                ('market_size', models.TextField(blank=True)),
+                ('traction', models.TextField(blank=True)),
+                ('funding_ask', models.DecimalField(blank=True, decimal_places=2, max_digits=12, null=True)),
+                ('funding_type', models.CharField(blank=True, choices=[('grant', 'Grant'), ('pre_seed', 'Pre-Seed'), ('seed', 'Seed'), ('series_a', 'Series A'), ('series_b', 'Series B'), ('bridge', 'Bridge Round'), ('other', 'Other')], max_length=20)),
+                ('submitted_at', models.DateTimeField(blank=True, null=True)),
+                ('reviewed_at', models.DateTimeField(blank=True, null=True)),
+                ('rejection_reason', models.TextField(blank=True)),
+                ('reviewed_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='reviewed_applications', to=settings.AUTH_USER_MODEL)),
+                ('startup', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='applications', to='incubation.startupprofile')),
+            ],
+            options={
+                'ordering': ['-created_at'],
+                'unique_together': {('startup', 'cohort')},
+            },
+        ),
+        migrations.CreateModel(
+            name='ApplicationNote',
+            fields=[
+                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('content', models.TextField()),
+                ('is_internal', models.BooleanField(default=True, help_text='Internal notes are visible to Super Admins only')),
+                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='incubation_notes', to=settings.AUTH_USER_MODEL)),
+                ('application', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='notes', to='incubation.incubationapplication')),
+            ],
+            options={
+                'ordering': ['-created_at'],
+            },
         ),
         migrations.CreateModel(
             name='FundingRound',
@@ -104,9 +101,5 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ['-created_at'],
             },
-        ),
-        migrations.AlterUniqueTogether(
-            name='incubationapplication',
-            unique_together={('startup', 'cohort')},
         ),
     ]
