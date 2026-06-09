@@ -65,8 +65,8 @@ export default function CompaniesPage() {
                       <td className="px-4 py-3 text-muted-foreground">{company.industry || '—'}</td>
                       <td className="px-4 py-3">{company.employee_count ?? '—'}</td>
                       <td className="px-4 py-3">
-                        <Badge variant={company.is_active ? 'success' : 'secondary'}>
-                          {company.is_active ? 'Active' : 'Inactive'}
+                        <Badge variant={company.status === 'active' ? 'success' : 'secondary'}>
+                          {company.status.charAt(0).toUpperCase() + company.status.slice(1)}
                         </Badge>
                       </td>
                       <td className="px-4 py-3 text-muted-foreground">{formatDate(company.created_at)}</td>
