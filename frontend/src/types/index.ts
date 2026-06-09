@@ -71,6 +71,8 @@ export interface Booking {
   duration_hours: number
   attendees: number
   status: BookingStatus
+  booking_type: 'internal' | 'external'
+  payment_required: boolean
   total_amount: string
   purpose: string
   rejection_reason: string
@@ -324,5 +326,104 @@ export interface SignatureRequest {
   expires_at: string | null
   certificate_file: string | null
   records: SignatureRecord[]
+  created_at: string
+}
+
+// ─── Workspace ────────────────────────────────────────────
+export interface Building {
+  id: string
+  name: string
+  city: string
+  state: string
+  is_active: boolean
+}
+
+// ─── Vendors ──────────────────────────────────────────────
+export type VendorCategory =
+  | 'utilities' | 'catering' | 'cleaning' | 'maintenance' | 'supplies' | 'security' | 'internet' | 'other'
+
+export interface Vendor {
+  id: string
+  name: string
+  category: VendorCategory
+  category_display: string
+  building: string | null
+  building_name: string | null
+  contact_person: string
+  email: string
+  phone: string
+  gst_number: string
+  address: string
+  notes: string
+  is_active: boolean
+  bill_count: number
+  created_at: string
+  updated_at: string
+}
+
+export type VendorBillStatus = 'pending' | 'paid' | 'overdue' | 'cancelled'
+
+export interface VendorBill {
+  id: string
+  vendor: string
+  vendor_name: string
+  building: string
+  building_name: string
+  bill_number: string
+  bill_date: string
+  due_date: string | null
+  amount: string
+  tax_amount: string
+  total_amount: string
+  status: VendorBillStatus
+  status_display: string
+  paid_at: string | null
+  description: string
+  attachment: string | null
+  notes: string
+  created_at: string
+  updated_at: string
+}
+
+export interface VendorBillSummary {
+  total_bills: number
+  total_amount: string
+  pending_amount: string
+  paid_amount: string
+  overdue_amount: string
+}
+
+// ─── Inventory ────────────────────────────────────────────
+export type InventoryCategory =
+  | 'pantry' | 'canteen' | 'water' | 'appliance' | 'cleaning' | 'stationery' | 'other'
+
+export interface InventoryItem {
+  id: string
+  building: string
+  building_name: string
+  name: string
+  category: InventoryCategory
+  category_display: string
+  unit: string
+  quantity: string
+  reorder_level: string
+  unit_cost: string
+  is_low_stock: boolean
+  notes: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface StockMovement {
+  id: string
+  item: string
+  item_name: string
+  direction: 'in' | 'out'
+  direction_display: string
+  quantity: string
+  reason: string
+  performed_by: string | null
+  performed_by_name: string | null
   created_at: string
 }

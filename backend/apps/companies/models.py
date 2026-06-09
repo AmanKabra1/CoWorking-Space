@@ -41,3 +41,18 @@ class Company(TimeStampedModel):
     @property
     def employee_count(self):
         return self.employees.filter(is_active=True).count()
+
+    def leases_building(self, building):
+        """
+        True if this company occupies space in the given building —
+        i.e. it has at least one assigned desk or parking slot there.
+        Used to decide whether a facility booking is internal (free,
+        approved by company admin) or external (paid, approved by super admin).
+        """
+        from apps.workspace.models import Desk, ParkingSlot
+        has_desk = Desk.objects.filter(
+            company=self, room__floor__building=building
+        ).exists()
+        if has_desk:
+            return True
+        return ParkingSlot.objects.filter(company=self, building=building).exists()

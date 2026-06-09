@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'apps.community.apps.CommunityConfig',
     'apps.esign.apps.EsignConfig',
     'apps.payments.apps.PaymentsConfig',
+    'apps.inventory.apps.InventoryConfig',
+    'apps.vendors.apps.VendorsConfig',
 ]
 
 MIDDLEWARE = [

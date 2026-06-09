@@ -20,6 +20,8 @@ import {
   FileSignature,
   CreditCard,
   Settings,
+  Package,
+  Receipt,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/auth'
@@ -41,6 +43,8 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/visitors', label: 'Visitors', icon: Users, roles: ['super_admin', 'company_admin'] },
   { href: '/incubation', label: 'Incubation', icon: Rocket, roles: ['super_admin', 'company_admin'] },
   { href: '/documents', label: 'Documents', icon: FolderOpen, roles: ['super_admin', 'company_admin', 'employee'] },
+  { href: '/inventory', label: 'Inventory', icon: Package, roles: ['super_admin', 'company_admin'] },
+  { href: '/vendors', label: 'Vendors', icon: Receipt, roles: ['super_admin', 'company_admin'] },
   { href: '/analytics', label: 'Analytics', icon: BarChart3, roles: ['super_admin', 'company_admin'] },
   { href: '/companies', label: 'Companies', icon: Building2, roles: ['super_admin'] },
   { href: '/chat', label: 'Chat', icon: MessageSquare, roles: ['super_admin', 'company_admin', 'employee'] },
