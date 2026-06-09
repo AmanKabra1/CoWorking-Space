@@ -43,11 +43,17 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:8000/api/health/ || exit 1
 
-CMD ["gunicorn", "coworkhub.wsgi:application", \
-     "--bind", "0.0.0.0:8000", \
-     "--workers", "4", \
-     "--worker-class", "gthread", \
-     "--threads", "2", \
-     "--timeout", "120", \
-     "--access-logfile", "-", \
-     "--error-logfile", "-"]
+# Run DB migrations (and seed the super admin if DJANGO_SUPERUSER_* env vars are
+# set) on every startup, then hand off to gunicorn. Migrate is idempotent;
+# collectstatic and createsuperuser are non-fatal so a re-deploy never breaks boot.
+CMD python manage.py migrate --noinput && \
+    (python manage.py collectstatic --noinput || true) && \
+    (python manage.py createsuperuser --noinput || true) && \
+    exec gunicorn coworkhub.wsgi:application \
+     --bind 0.0.0.0:8000 \
+     --workers 4 \
+     --worker-class gthread \
+     --threads 2 \
+     --timeout 120 \
+     --access-logfile - \
+     --error-logfile -
