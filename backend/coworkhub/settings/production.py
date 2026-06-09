@@ -1,5 +1,3 @@
-import dj_database_url
-
 from .base import *
 
 DEBUG = False
@@ -9,15 +7,25 @@ ALLOWED_HOSTS = config(
     cast=lambda v: [s.strip() for s in v.split(',') if s.strip()],
 )
 
-# ─── PostgreSQL (Render managed) ──────────────────────────
-# Set DATABASE_URL to Render's Postgres connection string. The Internal
-# Database URL works without SSL; set DB_SSL_REQUIRE=True for an external URL.
+# ─── TiDB Cloud (MySQL-compatible) ────────────────────────
 DATABASES = {
-    'default': dj_database_url.config(
-        env='DATABASE_URL',
-        conn_max_age=600,
-        ssl_require=config('DB_SSL_REQUIRE', default=False, cast=bool),
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT', default='4000'),
+        'OPTIONS': {
+            # mysqlclient expects SSL nested under "ssl" (not ssl_ca/ssl_verify_*).
+            # ssl_mode=VERIFY_IDENTITY enforces TLS; TiDB Cloud certs are publicly
+            # signed, so the container's system CA bundle verifies them.
+            'ssl_mode': 'VERIFY_IDENTITY',
+            'ssl': {'ca': config('TIDB_SSL_CA', default='/etc/ssl/certs/ca-certificates.crt')},
+            'charset': 'utf8mb4',
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
+    }
 }
 
 # ─── Redis Cache ──────────────────────────────────────────

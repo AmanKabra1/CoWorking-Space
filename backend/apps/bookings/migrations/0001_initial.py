@@ -12,6 +12,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('companies', '0001_initial'),
+        ('facilities', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -36,6 +37,7 @@ class Migration(migrations.Migration):
                 ('approved_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='approved_bookings', to=settings.AUTH_USER_MODEL)),
                 ('booked_by', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='bookings', to=settings.AUTH_USER_MODEL)),
                 ('company', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='bookings', to='companies.company')),
+                ('facility', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='bookings', to='facilities.facility')),
             ],
             options={
                 'db_table': 'bookings_booking',
