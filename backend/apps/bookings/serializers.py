@@ -29,7 +29,8 @@ class BookingListSerializer(serializers.ModelSerializer):
             'id', 'facility', 'facility_name', 'facility_type',
             'company', 'company_name', 'booked_by', 'booked_by_name',
             'booking_date', 'start_time', 'end_time', 'duration_hours',
-            'status', 'purpose', 'attendees_count', 'total_amount',
+            'status', 'booking_type', 'payment_required',
+            'purpose', 'attendees_count', 'total_amount',
             'created_at',
         ]
 
@@ -50,13 +51,15 @@ class BookingSerializer(serializers.ModelSerializer):
             'id', 'facility', 'facility_name', 'facility_type',
             'company', 'company_name', 'booked_by', 'booked_by_name',
             'booking_date', 'start_time', 'end_time', 'duration_hours',
-            'status', 'purpose', 'attendees_count', 'total_amount',
+            'status', 'booking_type', 'payment_required',
+            'purpose', 'attendees_count', 'total_amount',
             'approved_by', 'approved_by_name', 'approved_at',
             'rejection_reason', 'notes',
             'created_at', 'updated_at',
         ]
         read_only_fields = [
             'id', 'company', 'booked_by', 'duration_hours', 'total_amount',
+            'booking_type', 'payment_required',
             'approved_by', 'approved_at', 'status', 'created_at', 'updated_at',
         ]
 
@@ -136,15 +139,30 @@ class CreateBookingSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         facility = validated_data['facility']
+        company = validated_data['company']
         duration, amount = _compute_booking_financials(
             facility,
             validated_data['start_time'],
             validated_data['end_time'],
         )
+
+        # Internal if the company leases the facility's building → free, no payment.
+        # External otherwise → paid, requires super admin approval + payment.
+        is_internal = company.leases_building(facility.building)
+        if is_internal:
+            booking_type = Booking.INTERNAL
+            payment_required = False
+            amount = Decimal('0.00')
+        else:
+            booking_type = Booking.EXTERNAL
+            payment_required = True
+
         return Booking.objects.create(
             **validated_data,
             duration_hours=duration,
             total_amount=amount,
+            booking_type=booking_type,
+            payment_required=payment_required,
         )
 
 

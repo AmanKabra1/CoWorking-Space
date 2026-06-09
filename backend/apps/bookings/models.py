@@ -19,6 +19,14 @@ class Booking(TimeStampedModel):
         (COMPLETED, 'Completed'),
     ]
 
+    INTERNAL = 'internal'
+    EXTERNAL = 'external'
+
+    BOOKING_TYPE_CHOICES = [
+        (INTERNAL, 'Internal — booker leases this building'),
+        (EXTERNAL, 'External — booker does not lease this building'),
+    ]
+
     facility = models.ForeignKey(
         'facilities.Facility', on_delete=models.PROTECT, related_name='bookings'
     )
@@ -35,6 +43,14 @@ class Booking(TimeStampedModel):
     duration_hours = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=PENDING)
+    booking_type = models.CharField(
+        max_length=10, choices=BOOKING_TYPE_CHOICES, default=EXTERNAL,
+        help_text='Set automatically: internal if the company leases the building, else external.',
+    )
+    payment_required = models.BooleanField(
+        default=True,
+        help_text='False for internal bookings (included in lease); True for external (paid).',
+    )
     purpose = models.TextField()
     attendees_count = models.PositiveIntegerField(default=1)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)

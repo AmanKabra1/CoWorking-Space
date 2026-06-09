@@ -10,8 +10,7 @@ from .serializers import (
     CreateBookingSerializer, RejectBookingSerializer,
     CalendarBookingSerializer,
 )
-from .permissions import CanCreateBooking
-from apps.accounts.permissions import IsSuperAdmin
+from .permissions import CanCreateBooking, CanApproveBooking
 
 
 @extend_schema_view(
@@ -58,8 +57,8 @@ class BookingViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action == 'create':
             return [CanCreateBooking()]
-        if self.action in ['approve', 'reject', 'complete', 'pending_queue']:
-            return [IsSuperAdmin()]
+        if self.action in ['approve', 'reject', 'complete']:
+            return [CanApproveBooking()]
         return [permissions.IsAuthenticated()]
 
     def create(self, request, *args, **kwargs):
@@ -82,7 +81,10 @@ class BookingViewSet(viewsets.ModelViewSet):
     @extend_schema(tags=['Bookings'], responses={200: BookingSerializer})
     @action(detail=True, methods=['post'], url_path='approve')
     def approve(self, request, pk=None):
-        """Approve a pending booking. Super Admin only."""
+        """
+        Approve a pending booking.
+        External booking → Super Admin. Internal booking → the company's Company Admin (or Super Admin).
+        """
         booking = self.get_object()
         if booking.status != Booking.PENDING:
             return Response(
@@ -98,7 +100,10 @@ class BookingViewSet(viewsets.ModelViewSet):
     @extend_schema(tags=['Bookings'], request=RejectBookingSerializer, responses={200: BookingSerializer})
     @action(detail=True, methods=['post'], url_path='reject')
     def reject(self, request, pk=None):
-        """Reject a pending booking with an optional reason. Super Admin only."""
+        """
+        Reject a pending booking with an optional reason.
+        External booking → Super Admin. Internal booking → the company's Company Admin (or Super Admin).
+        """
         booking = self.get_object()
         if booking.status != Booking.PENDING:
             return Response(
@@ -135,7 +140,10 @@ class BookingViewSet(viewsets.ModelViewSet):
     @extend_schema(tags=['Bookings'], responses={200: BookingSerializer})
     @action(detail=True, methods=['post'], url_path='complete')
     def complete(self, request, pk=None):
-        """Mark an approved booking as completed. Super Admin only."""
+        """
+        Mark an approved booking as completed.
+        External booking → Super Admin. Internal booking → the company's Company Admin (or Super Admin).
+        """
         booking = self.get_object()
         if booking.status != Booking.APPROVED:
             return Response(
@@ -151,13 +159,23 @@ class BookingViewSet(viewsets.ModelViewSet):
     @extend_schema(tags=['Bookings'], responses={200: BookingListSerializer(many=True)})
     @action(detail=False, methods=['get'], url_path='pending-queue')
     def pending_queue(self, request):
-        """All pending bookings awaiting approval, oldest first. Super Admin only."""
+        """
+        Pending bookings awaiting *your* approval, oldest first.
+        Super Admin → all pending. Company Admin → own company's internal pending.
+        Employees → none.
+        """
+        user = request.user
         qs = (
             Booking.objects
             .filter(status=Booking.PENDING)
             .select_related('facility', 'company', 'booked_by')
             .order_by('booking_date', 'start_time')
         )
+        if not user.is_super_admin:
+            if user.is_company_admin and user.company_id:
+                qs = qs.filter(booking_type=Booking.INTERNAL, company_id=user.company_id)
+            else:
+                qs = Booking.objects.none()
         serializer = BookingListSerializer(qs, many=True)
         return Response(serializer.data)
 

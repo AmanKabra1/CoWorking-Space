@@ -20,6 +20,12 @@ import type {
   SignatureRequest,
   PaymentGateway,
   PaymentOrder,
+  InventoryItem,
+  StockMovement,
+  Building,
+  Vendor,
+  VendorBill,
+  VendorBillSummary,
 } from '@/types'
 
 // ─── Auth ─────────────────────────────────────────────────
@@ -93,6 +99,8 @@ export const bookingService = {
     api.post<Booking>(`/bookings/${id}/reject/`, { reason }).then(r => r.data),
   cancel: (id: string) =>
     api.post<Booking>(`/bookings/${id}/cancel/`).then(r => r.data),
+  complete: (id: string) =>
+    api.post<Booking>(`/bookings/${id}/complete/`).then(r => r.data),
   pendingQueue: () =>
     api.get<PaginatedResponse<Booking>>('/bookings/pending-queue/').then(r => r.data),
 }
@@ -227,6 +235,61 @@ export const paymentService = {
     ).then(r => r.data),
   verifyPayment: (orderId: number, data: Record<string, string>) =>
     api.post(`/payments/payment-orders/${orderId}/verify/`, data).then(r => r.data),
+}
+
+// ─── Workspace ────────────────────────────────────────────
+export const workspaceService = {
+  buildings: () =>
+    api.get<PaginatedResponse<Building>>('/workspace/buildings/').then(r => r.data.results ?? []),
+}
+
+// ─── Inventory ────────────────────────────────────────────
+export const inventoryService = {
+  list: (params?: Record<string, string>) =>
+    api.get<PaginatedResponse<InventoryItem>>('/inventory/', { params }).then(r => r.data.results ?? []),
+  get: (id: string) =>
+    api.get<InventoryItem>(`/inventory/${id}/`).then(r => r.data),
+  create: (data: Partial<InventoryItem>) =>
+    api.post<InventoryItem>('/inventory/', data).then(r => r.data),
+  update: (id: string, data: Partial<InventoryItem>) =>
+    api.patch<InventoryItem>(`/inventory/${id}/`, data).then(r => r.data),
+  remove: (id: string) =>
+    api.delete(`/inventory/${id}/`).then(r => r.data),
+  restock: (id: string, quantity: number, reason?: string) =>
+    api.post<InventoryItem>(`/inventory/${id}/restock/`, { quantity, reason }).then(r => r.data),
+  consume: (id: string, quantity: number, reason?: string) =>
+    api.post<InventoryItem>(`/inventory/${id}/consume/`, { quantity, reason }).then(r => r.data),
+  lowStock: () =>
+    api.get<InventoryItem[]>('/inventory/low-stock/').then(r => r.data),
+  movements: (id: string) =>
+    api.get<StockMovement[]>(`/inventory/${id}/movements/`).then(r => r.data),
+}
+
+// ─── Vendors ──────────────────────────────────────────────
+export const vendorService = {
+  list: (params?: Record<string, string>) =>
+    api.get<PaginatedResponse<Vendor>>('/vendors/', { params }).then(r => r.data.results ?? []),
+  create: (data: Partial<Vendor>) =>
+    api.post<Vendor>('/vendors/', data).then(r => r.data),
+  update: (id: string, data: Partial<Vendor>) =>
+    api.patch<Vendor>(`/vendors/${id}/`, data).then(r => r.data),
+  remove: (id: string) =>
+    api.delete(`/vendors/${id}/`).then(r => r.data),
+}
+
+export const vendorBillService = {
+  list: (params?: Record<string, string>) =>
+    api.get<PaginatedResponse<VendorBill>>('/vendors/bills/', { params }).then(r => r.data.results ?? []),
+  create: (data: Partial<VendorBill>) =>
+    api.post<VendorBill>('/vendors/bills/', data).then(r => r.data),
+  update: (id: string, data: Partial<VendorBill>) =>
+    api.patch<VendorBill>(`/vendors/bills/${id}/`, data).then(r => r.data),
+  remove: (id: string) =>
+    api.delete(`/vendors/bills/${id}/`).then(r => r.data),
+  markPaid: (id: string) =>
+    api.post<VendorBill>(`/vendors/bills/${id}/mark-paid/`).then(r => r.data),
+  summary: () =>
+    api.get<VendorBillSummary>('/vendors/bills/summary/').then(r => r.data),
 }
 
 // ─── E-Sign ───────────────────────────────────────────────
