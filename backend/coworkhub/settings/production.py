@@ -7,10 +7,13 @@ ALLOWED_HOSTS = config(
     cast=lambda v: [s.strip() for s in v.split(',') if s.strip()],
 )
 
-# ─── TiDB Cloud (MySQL-compatible) ────────────────────────
+# ─── TiDB Cloud ───────────────────────────────────────────
+# Use the official django-tidb backend (not plain mysql): it patches Django's
+# schema editor for TiDB's DDL limits, so ALTER-based FK migrations (ours and
+# third-party, e.g. django_celery_beat) apply correctly.
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django_tidb',
         'NAME': config('DB_NAME'),
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),
