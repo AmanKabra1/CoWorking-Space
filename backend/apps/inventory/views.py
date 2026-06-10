@@ -122,6 +122,6 @@ class InventoryItemViewSet(viewsets.ModelViewSet):
             for i in items
         ]
         return build_export_response(
-            request.query_params.get('format'),
+            request.query_params.get('fmt'),
             'inventory', 'CoWorkHub — Inventory', headers, rows,
         )
