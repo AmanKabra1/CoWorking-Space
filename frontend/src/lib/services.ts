@@ -105,7 +105,7 @@ export const bookingService = {
   pendingQueue: () =>
     api.get<PaginatedResponse<Booking>>('/bookings/pending-queue/').then(r => r.data),
   export: (format: ExportFormat) =>
-    api.get('/bookings/export/', { params: { format }, responseType: 'blob' }).then(r => r.data),
+    api.get('/bookings/export/', { params: { fmt: format }, responseType: 'blob' }).then(r => r.data),
 }
 
 // ─── Billing ──────────────────────────────────────────────
@@ -267,7 +267,7 @@ export const inventoryService = {
   movements: (id: string) =>
     api.get<StockMovement[]>(`/inventory/${id}/movements/`).then(r => r.data),
   export: (format: ExportFormat) =>
-    api.get('/inventory/export/', { params: { format }, responseType: 'blob' }).then(r => r.data),
+    api.get('/inventory/export/', { params: { fmt: format }, responseType: 'blob' }).then(r => r.data),
 }
 
 // ─── Vendors ──────────────────────────────────────────────
@@ -296,7 +296,7 @@ export const vendorBillService = {
   summary: () =>
     api.get<VendorBillSummary>('/vendors/bills/summary/').then(r => r.data),
   export: (format: ExportFormat) =>
-    api.get('/vendors/bills/export/', { params: { format }, responseType: 'blob' }).then(r => r.data),
+    api.get('/vendors/bills/export/', { params: { fmt: format }, responseType: 'blob' }).then(r => r.data),
 }
 
 // ─── E-Sign ───────────────────────────────────────────────

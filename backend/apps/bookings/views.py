@@ -234,6 +234,6 @@ class BookingViewSet(viewsets.ModelViewSet):
             for b in bookings
         ]
         return build_export_response(
-            request.query_params.get('format'),
+            request.query_params.get('fmt'),
             'bookings', 'CoWorkHub — Bookings', headers, rows,
         )

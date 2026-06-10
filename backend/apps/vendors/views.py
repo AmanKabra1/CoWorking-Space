@@ -98,7 +98,7 @@ class VendorBillViewSet(viewsets.ModelViewSet):
             for b in bills
         ]
         return build_export_response(
-            request.query_params.get('format'),
+            request.query_params.get('fmt'),
             'vendor_bills', 'CoWorkHub — Vendor Bills', headers, rows,
         )
 
