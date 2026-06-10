@@ -48,6 +48,20 @@ def notify_guest_booking_approved(booking):
     send_email(booking.guest_email, subject, body)
 
 
+def notify_guest_booking_confirmed(booking):
+    """Tell the guest their payment is recorded and the booking is confirmed."""
+    if not booking.guest_email:
+        return
+    subject = f"Booking confirmed — {booking.facility.name}"
+    body = (
+        f"Hi {booking.guest_name},\n\n"
+        f"Your payment has been recorded and your booking for {booking.facility.name} "
+        f"on {_slot(booking)} is now confirmed.\n\n"
+        "We look forward to hosting you. Thank you!"
+    )
+    send_email(booking.guest_email, subject, body)
+
+
 def notify_guest_booking_rejected(booking):
     """Tell the guest their booking request was declined."""
     if not booking.guest_email:

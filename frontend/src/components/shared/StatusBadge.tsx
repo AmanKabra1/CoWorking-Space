@@ -3,7 +3,8 @@ import { Badge } from '@/components/ui/badge'
 const STATUS_VARIANTS: Record<string, 'default' | 'secondary' | 'destructive' | 'success' | 'warning' | 'info' | 'outline'> = {
   // Booking
   pending: 'warning',
-  approved: 'success',
+  approved: 'info',
+  confirmed: 'success',
   rejected: 'destructive',
   cancelled: 'secondary',
   completed: 'info',

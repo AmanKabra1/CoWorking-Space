@@ -7,13 +7,15 @@ from apps.core.models import TimeStampedModel
 class Booking(TimeStampedModel):
     PENDING = 'pending'
     APPROVED = 'approved'
+    CONFIRMED = 'confirmed'
     REJECTED = 'rejected'
     CANCELLED = 'cancelled'
     COMPLETED = 'completed'
 
     STATUS_CHOICES = [
         (PENDING, 'Pending Approval'),
-        (APPROVED, 'Approved'),
+        (APPROVED, 'Approved — awaiting payment'),
+        (CONFIRMED, 'Confirmed — paid'),
         (REJECTED, 'Rejected'),
         (CANCELLED, 'Cancelled'),
         (COMPLETED, 'Completed'),

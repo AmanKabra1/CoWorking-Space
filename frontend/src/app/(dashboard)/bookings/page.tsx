@@ -96,6 +96,14 @@ export default function BookingsPage() {
     onSettled: () => setPendingId(null),
   })
 
+  const confirmMutation = useMutation({
+    mutationFn: (id: string) => bookingService.confirm(id),
+    onMutate: (id) => setPendingId(id),
+    onSuccess: () => { toast({ title: 'Marked paid', description: 'Booking confirmed.' }); invalidate() },
+    onError: () => toast({ title: 'Could not confirm', variant: 'destructive' }),
+    onSettled: () => setPendingId(null),
+  })
+
   // Mirror backend CanApproveBooking: super_admin handles all;
   // company_admin handles only their own company's internal bookings.
   function canApprove(b: Booking): boolean {
@@ -267,6 +275,15 @@ export default function BookingsPage() {
                                     Reject
                                   </Button>
                                 </>
+                              )}
+                              {booking.status === 'approved' && booking.payment_required && canApprove(booking) && (
+                                <Button
+                                  size="sm"
+                                  disabled={busy}
+                                  onClick={() => confirmMutation.mutate(booking.id)}
+                                >
+                                  Mark Paid
+                                </Button>
                               )}
                               {canCancel(booking) && booking.status !== 'pending' && (
                                 <Button

@@ -55,7 +55,7 @@ export interface Facility {
   images: { id: string; image: string; is_primary: boolean }[]
 }
 
-export type BookingStatus = 'pending' | 'approved' | 'rejected' | 'cancelled' | 'completed'
+export type BookingStatus = 'pending' | 'approved' | 'confirmed' | 'rejected' | 'cancelled' | 'completed'
 
 export interface Booking {
   id: string
