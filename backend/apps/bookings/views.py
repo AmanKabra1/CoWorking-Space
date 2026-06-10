@@ -11,6 +11,7 @@ from .serializers import (
     CalendarBookingSerializer,
 )
 from .permissions import CanCreateBooking, CanApproveBooking
+from .emails import notify_guest_booking_approved, notify_guest_booking_rejected
 from apps.core.exporters import build_export_response
 
 
@@ -96,6 +97,7 @@ class BookingViewSet(viewsets.ModelViewSet):
         booking.approved_by = request.user
         booking.approved_at = timezone.now()
         booking.save(update_fields=['status', 'approved_by', 'approved_at', 'updated_at'])
+        notify_guest_booking_approved(booking)
         return Response(BookingSerializer(booking).data)
 
     @extend_schema(tags=['Bookings'], request=RejectBookingSerializer, responses={200: BookingSerializer})
@@ -116,6 +118,7 @@ class BookingViewSet(viewsets.ModelViewSet):
         booking.status = Booking.REJECTED
         booking.rejection_reason = serializer.validated_data.get('reason', '')
         booking.save(update_fields=['status', 'rejection_reason', 'updated_at'])
+        notify_guest_booking_rejected(booking)
         return Response(BookingSerializer(booking).data)
 
     @extend_schema(tags=['Bookings'], responses={200: BookingSerializer})

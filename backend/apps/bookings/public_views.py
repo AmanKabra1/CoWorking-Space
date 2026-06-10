@@ -15,6 +15,7 @@ from apps.facilities.models import Facility
 from .models import Booking
 from .serializers import PublicBookingSerializer
 from .public_serializers import PublicFacilitySerializer
+from .emails import notify_admins_new_public_booking
 
 
 @extend_schema(tags=['Public'])
@@ -68,6 +69,7 @@ class PublicBookingCreateView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         booking = serializer.save()
+        notify_admins_new_public_booking(booking)
         return Response(
             {
                 'id': str(booking.id),
