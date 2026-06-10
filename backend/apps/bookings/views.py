@@ -11,7 +11,11 @@ from .serializers import (
     CalendarBookingSerializer,
 )
 from .permissions import CanCreateBooking, CanApproveBooking
-from .emails import notify_guest_booking_approved, notify_guest_booking_rejected
+from .emails import (
+    notify_guest_booking_approved,
+    notify_guest_booking_rejected,
+    notify_guest_booking_confirmed,
+)
 from apps.core.exporters import build_export_response
 
 
@@ -59,7 +63,7 @@ class BookingViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action == 'create':
             return [CanCreateBooking()]
-        if self.action in ['approve', 'reject', 'complete']:
+        if self.action in ['approve', 'reject', 'complete', 'confirm']:
             return [CanApproveBooking()]
         return [permissions.IsAuthenticated()]
 
@@ -149,13 +153,31 @@ class BookingViewSet(viewsets.ModelViewSet):
         External booking → Super Admin. Internal booking → the company's Company Admin (or Super Admin).
         """
         booking = self.get_object()
-        if booking.status != Booking.APPROVED:
+        if booking.status not in [Booking.APPROVED, Booking.CONFIRMED]:
             return Response(
-                {'detail': 'Only approved bookings can be marked as completed.'},
+                {'detail': 'Only approved or confirmed bookings can be marked as completed.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         booking.status = Booking.COMPLETED
         booking.save(update_fields=['status', 'updated_at'])
+        return Response(BookingSerializer(booking).data)
+
+    @extend_schema(tags=['Bookings'], responses={200: BookingSerializer})
+    @action(detail=True, methods=['post'], url_path='confirm')
+    def confirm(self, request, pk=None):
+        """
+        Mark an approved booking as paid/confirmed (locks the slot).
+        External → Super Admin. Internal → the company's Company Admin (or Super Admin).
+        """
+        booking = self.get_object()
+        if booking.status != Booking.APPROVED:
+            return Response(
+                {'detail': 'Only approved bookings can be confirmed.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        booking.status = Booking.CONFIRMED
+        booking.save(update_fields=['status', 'updated_at'])
+        notify_guest_booking_confirmed(booking)
         return Response(BookingSerializer(booking).data)
 
     # ─── List actions ──────────────────────────────────────

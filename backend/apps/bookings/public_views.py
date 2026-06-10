@@ -48,7 +48,7 @@ class PublicAvailabilityView(APIView):
         slots = (
             Booking.objects
             .filter(facility=facility, booking_date=date,
-                    status__in=[Booking.PENDING, Booking.APPROVED])
+                    status__in=[Booking.PENDING, Booking.APPROVED, Booking.CONFIRMED])
             .values('start_time', 'end_time')
             .order_by('start_time')
         )

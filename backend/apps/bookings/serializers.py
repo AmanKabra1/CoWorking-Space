@@ -111,7 +111,7 @@ class CreateBookingSerializer(serializers.ModelSerializer):
         conflict = Booking.objects.filter(
             facility=facility,
             booking_date=booking_date,
-            status__in=[Booking.PENDING, Booking.APPROVED],
+            status__in=[Booking.PENDING, Booking.APPROVED, Booking.CONFIRMED],
             start_time__lt=end_time,
             end_time__gt=start_time,
         )
@@ -206,7 +206,7 @@ class PublicBookingSerializer(serializers.ModelSerializer):
         conflict = Booking.objects.filter(
             facility=facility,
             booking_date=booking_date,
-            status__in=[Booking.PENDING, Booking.APPROVED],
+            status__in=[Booking.PENDING, Booking.APPROVED, Booking.CONFIRMED],
             start_time__lt=end_time,
             end_time__gt=start_time,
         )
