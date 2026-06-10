@@ -7,23 +7,70 @@ import { ExportButtons } from '@/components/shared/ExportButtons'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { bookingService } from '@/lib/services'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { bookingService, facilityService, companyService } from '@/lib/services'
 import { useAuthStore } from '@/store/auth'
 import { formatDate, formatTime, formatCurrency } from '@/lib/utils'
 import { toast } from '@/hooks/use-toast'
 import type { Booking } from '@/types'
 
+const selectClass =
+  'flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring'
+
 export default function BookingsPage() {
   const queryClient = useQueryClient()
   const user = useAuthStore(s => s.user)
   const [pendingId, setPendingId] = useState<string | null>(null)
+  const [showForm, setShowForm] = useState(false)
+  const isSuperAdmin = user?.role === 'super_admin'
+
+  const [form, setForm] = useState({
+    facility: '', company: '', booking_date: '',
+    start_time: '', end_time: '', attendees_count: '1', purpose: '',
+  })
 
   const { data, isLoading } = useQuery({
     queryKey: ['bookings'],
     queryFn: () => bookingService.list(),
   })
 
+  const { data: facilities } = useQuery({
+    queryKey: ['facilities'],
+    queryFn: () => facilityService.list(),
+  })
+
+  const { data: companies } = useQuery({
+    queryKey: ['companies'],
+    queryFn: () => companyService.list(),
+    enabled: isSuperAdmin,
+  })
+
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['bookings'] })
+
+  const createMutation = useMutation({
+    mutationFn: () => bookingService.create({
+      facility: form.facility,
+      ...(isSuperAdmin && form.company ? { company: form.company } : {}),
+      booking_date: form.booking_date,
+      start_time: form.start_time,
+      end_time: form.end_time,
+      attendees_count: Number(form.attendees_count) || 1,
+      purpose: form.purpose,
+    }),
+    onSuccess: () => {
+      toast({ title: 'Booking requested', description: 'Awaiting approval.' })
+      invalidate()
+      setShowForm(false)
+      setForm({ facility: '', company: '', booking_date: '', start_time: '', end_time: '', attendees_count: '1', purpose: '' })
+    },
+    onError: (e: unknown) => {
+      const data = (e as { response?: { data?: Record<string, string[] | string> } })?.response?.data
+      const first = data ? Object.values(data)[0] : null
+      const msg = Array.isArray(first) ? first[0] : (first ?? 'Check the fields and try again.')
+      toast({ title: 'Could not create booking', description: String(msg), variant: 'destructive' })
+    },
+  })
 
   const approveMutation = useMutation({
     mutationFn: (id: string) => bookingService.approve(id),
@@ -70,8 +117,86 @@ export default function BookingsPage() {
       <PageHeader
         title="Bookings"
         description="Manage facility reservations"
-        action={<ExportButtons filename="bookings" onExport={(f) => bookingService.export(f)} />}
+        action={
+          <div className="flex items-center gap-2">
+            <ExportButtons filename="bookings" onExport={(f) => bookingService.export(f)} />
+            <Button onClick={() => setShowForm(v => !v)}>
+              {showForm ? 'Close' : 'New Booking'}
+            </Button>
+          </div>
+        }
       />
+
+      {showForm && (
+        <Card>
+          <CardContent className="p-4">
+            <form
+              onSubmit={(e) => { e.preventDefault(); createMutation.mutate() }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+            >
+              <div className="space-y-1.5">
+                <Label>Facility</Label>
+                <select
+                  className={selectClass}
+                  value={form.facility}
+                  onChange={(e) => setForm({ ...form, facility: e.target.value })}
+                  required
+                >
+                  <option value="">Select facility…</option>
+                  {facilities?.results?.filter(f => f.is_active).map((f) => (
+                    <option key={f.id} value={f.id}>
+                      {f.name}{f.building_name ? ` — ${f.building_name}` : ''} (cap {f.capacity})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {isSuperAdmin && (
+                <div className="space-y-1.5">
+                  <Label>Company</Label>
+                  <select
+                    className={selectClass}
+                    value={form.company}
+                    onChange={(e) => setForm({ ...form, company: e.target.value })}
+                    required
+                  >
+                    <option value="">Select company…</option>
+                    {companies?.results?.map((c) => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <Label>Date</Label>
+                <Input type="date" value={form.booking_date} onChange={(e) => setForm({ ...form, booking_date: e.target.value })} required />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Start time</Label>
+                <Input type="time" value={form.start_time} onChange={(e) => setForm({ ...form, start_time: e.target.value })} required />
+              </div>
+              <div className="space-y-1.5">
+                <Label>End time</Label>
+                <Input type="time" value={form.end_time} onChange={(e) => setForm({ ...form, end_time: e.target.value })} required />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Attendees</Label>
+                <Input type="number" min="1" value={form.attendees_count} onChange={(e) => setForm({ ...form, attendees_count: e.target.value })} />
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label>Purpose</Label>
+                <Input value={form.purpose} onChange={(e) => setForm({ ...form, purpose: e.target.value })} placeholder="e.g. Team standup" required />
+              </div>
+              <div className="flex items-end">
+                <Button type="submit" disabled={createMutation.isPending}>
+                  {createMutation.isPending ? 'Submitting…' : 'Request Booking'}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      )}
 
       {isLoading ? (
         <div className="space-y-3">
