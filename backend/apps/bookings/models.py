@@ -30,12 +30,21 @@ class Booking(TimeStampedModel):
     facility = models.ForeignKey(
         'facilities.Facility', on_delete=models.PROTECT, related_name='bookings'
     )
+    # company/booked_by are null for public (guest) bookings made without login.
     company = models.ForeignKey(
-        'companies.Company', on_delete=models.PROTECT, related_name='bookings'
+        'companies.Company', on_delete=models.PROTECT, related_name='bookings',
+        null=True, blank=True,
     )
     booked_by = models.ForeignKey(
-        'accounts.User', on_delete=models.PROTECT, related_name='bookings'
+        'accounts.User', on_delete=models.PROTECT, related_name='bookings',
+        null=True, blank=True,
     )
+
+    # Guest contact details — filled for public bookings (no user account).
+    guest_name = models.CharField(max_length=150, blank=True)
+    guest_email = models.EmailField(blank=True)
+    guest_phone = models.CharField(max_length=15, blank=True)
+    guest_company = models.CharField(max_length=200, blank=True)
 
     booking_date = models.DateField()
     start_time = models.TimeField()

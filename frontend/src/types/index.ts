@@ -338,6 +338,20 @@ export interface Building {
   is_active: boolean
 }
 
+// ─── Public booking ───────────────────────────────────────
+export interface PublicFacility {
+  id: string
+  name: string
+  facility_type: string
+  facility_type_display: string
+  building_name: string | null
+  capacity: number
+  price_per_hour: string
+  price_per_day: string
+  description: string
+  amenities: string[]
+}
+
 // ─── Exports ──────────────────────────────────────────────
 export type ExportFormat = 'excel' | 'word' | 'pdf'
 

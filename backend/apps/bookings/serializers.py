@@ -166,6 +166,68 @@ class CreateBookingSerializer(serializers.ModelSerializer):
         )
 
 
+class PublicBookingSerializer(serializers.ModelSerializer):
+    """Guest (no-login) booking request for a public facility."""
+
+    class Meta:
+        model = Booking
+        fields = [
+            'id', 'facility', 'booking_date', 'start_time', 'end_time',
+            'attendees_count', 'purpose',
+            'guest_name', 'guest_email', 'guest_phone', 'guest_company',
+            'status', 'total_amount',
+        ]
+        read_only_fields = ['id', 'status', 'total_amount']
+        extra_kwargs = {
+            'guest_name': {'required': True},
+            'guest_email': {'required': True},
+            'guest_phone': {'required': True},
+            'purpose': {'required': True},
+        }
+
+    def validate(self, attrs):
+        facility = attrs['facility']
+        booking_date = attrs['booking_date']
+        start_time = attrs['start_time']
+        end_time = attrs['end_time']
+        attendees = attrs.get('attendees_count', 1)
+
+        if not (facility.is_active and facility.is_public):
+            raise serializers.ValidationError({'facility': 'This facility is not open for public booking.'})
+        if end_time <= start_time:
+            raise serializers.ValidationError({'end_time': 'End time must be after start time.'})
+        if booking_date < timezone.localdate():
+            raise serializers.ValidationError({'booking_date': 'Booking date cannot be in the past.'})
+        if attendees > facility.capacity:
+            raise serializers.ValidationError({
+                'attendees_count': f'Exceeds facility capacity of {facility.capacity} people.'
+            })
+
+        conflict = Booking.objects.filter(
+            facility=facility,
+            booking_date=booking_date,
+            status__in=[Booking.PENDING, Booking.APPROVED],
+            start_time__lt=end_time,
+            end_time__gt=start_time,
+        )
+        if conflict.exists():
+            raise serializers.ValidationError({'start_time': 'This time slot is already taken.'})
+        return attrs
+
+    def create(self, validated_data):
+        facility = validated_data['facility']
+        duration, amount = _compute_booking_financials(
+            facility, validated_data['start_time'], validated_data['end_time'],
+        )
+        return Booking.objects.create(
+            **validated_data,
+            duration_hours=duration,
+            total_amount=amount,
+            booking_type=Booking.EXTERNAL,
+            payment_required=True,
+        )
+
+
 class RejectBookingSerializer(serializers.Serializer):
     reason = serializers.CharField(
         required=False, allow_blank=True,

@@ -11,11 +11,8 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             CoWorkHub
           </Link>
           <nav className="flex items-center gap-6">
-            <Link href="/pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Pricing
-            </Link>
-            <Link href="/about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              About
+            <Link href="/book" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              Book a Space
             </Link>
             <Link
               href="/login"
