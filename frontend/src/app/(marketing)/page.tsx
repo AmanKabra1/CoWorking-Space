@@ -28,13 +28,6 @@ const features = [
   },
 ]
 
-const stats = [
-  { value: '500+', label: 'Spaces' },
-  { value: '10,000+', label: 'Members' },
-  { value: '99.9%', label: 'Uptime' },
-  { value: '24/7', label: 'Support' },
-]
-
 export default function MarketingHomePage() {
   return (
     <>
@@ -104,20 +97,6 @@ export default function MarketingHomePage() {
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="py-16 bg-primary">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
-            {stats.map(({ value, label }) => (
-              <div key={label} className="text-center">
-                <div className="text-4xl font-extrabold text-white">{value}</div>
-                <div className="mt-1 text-sm font-medium text-primary-foreground/70">{label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* CTA Banner */}
       <section className="py-20 bg-muted/40">
         <div className="max-w-3xl mx-auto px-4 text-center">
@@ -125,8 +104,7 @@ export default function MarketingHomePage() {
             Ready to modernize your space?
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Join hundreds of coworking operators who have already switched. No credit card required
-            to start.
+            Set up your coworking space and start managing bookings, billing, and members in minutes.
           </p>
           <Link
             href="/login"

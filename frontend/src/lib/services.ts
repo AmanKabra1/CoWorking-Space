@@ -87,11 +87,11 @@ export const bookingService = {
     api.get<Booking>(`/bookings/${id}/`).then(r => r.data),
   create: (data: {
     facility: string
-    company: string
+    company?: string
     booking_date: string
     start_time: string
     end_time: string
-    attendees: number
+    attendees_count: number
     purpose: string
   }) => api.post<Booking>('/bookings/', data).then(r => r.data),
   approve: (id: string) =>
