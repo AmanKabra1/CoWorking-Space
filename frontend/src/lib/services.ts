@@ -295,6 +295,13 @@ export const inventoryService = {
     api.get<StockMovement[]>(`/inventory/${id}/movements/`).then(r => r.data),
   export: (format: ExportFormat) =>
     api.get('/inventory/export/', { params: { fmt: format }, responseType: 'blob' }).then(r => r.data),
+  importExcel: (file: File) => {
+    const fd = new FormData()
+    fd.append('file', file)
+    return api.post<{ updated: number; skipped: number }>('/inventory/import-excel/', fd, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(r => r.data)
+  },
 }
 
 // ─── Vendors ──────────────────────────────────────────────
