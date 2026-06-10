@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { ExportButtons } from '@/components/shared/ExportButtons'
@@ -31,6 +31,7 @@ export default function InventoryPage() {
   const [showForm, setShowForm] = useState(false)
   const [adjusting, setAdjusting] = useState<{ id: string; direction: 'in' | 'out' } | null>(null)
   const [adjustQty, setAdjustQty] = useState('')
+  const fileRef = useRef<HTMLInputElement>(null)
 
   const [form, setForm] = useState({
     building: '',
@@ -80,6 +81,18 @@ export default function InventoryPage() {
     },
   })
 
+  const importMutation = useMutation({
+    mutationFn: (file: File) => inventoryService.importExcel(file),
+    onSuccess: (res) => {
+      toast({ title: 'Import complete', description: `${res.updated} updated, ${res.skipped} skipped.` })
+      invalidate()
+    },
+    onError: (e: unknown) => {
+      const detail = (e as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+      toast({ title: 'Import failed', description: detail ?? 'Upload a file exported from this page.', variant: 'destructive' })
+    },
+  })
+
   function submitAdjust() {
     const qty = parseFloat(adjustQty)
     if (!adjusting || isNaN(qty) || qty <= 0) {
@@ -87,6 +100,12 @@ export default function InventoryPage() {
       return
     }
     adjustMutation.mutate({ id: adjusting.id, direction: adjusting.direction, qty })
+  }
+
+  function onFilePicked(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) importMutation.mutate(file)
+    e.target.value = ''  // allow re-uploading the same file name
   }
 
   return (
@@ -97,6 +116,21 @@ export default function InventoryPage() {
         action={
           <div className="flex items-center gap-2">
             <ExportButtons filename="inventory" onExport={(f) => inventoryService.export(f)} />
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".xlsx"
+              className="hidden"
+              onChange={onFilePicked}
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={importMutation.isPending}
+              onClick={() => fileRef.current?.click()}
+            >
+              {importMutation.isPending ? 'Importing…' : 'Import Excel'}
+            </Button>
             <Button onClick={() => setShowForm(v => !v)}>
               {showForm ? 'Close' : 'Add Item'}
             </Button>
