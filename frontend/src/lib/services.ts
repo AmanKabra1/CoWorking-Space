@@ -27,6 +27,7 @@ import type {
   VendorBill,
   VendorBillSummary,
   ExportFormat,
+  PublicFacility,
 } from '@/types'
 
 // ─── Auth ─────────────────────────────────────────────────
@@ -238,6 +239,30 @@ export const paymentService = {
     ).then(r => r.data),
   verifyPayment: (orderId: number, data: Record<string, string>) =>
     api.post(`/payments/payment-orders/${orderId}/verify/`, data).then(r => r.data),
+}
+
+// ─── Public (no-login) booking ────────────────────────────
+export const publicService = {
+  facilities: () =>
+    api.get<PublicFacility[]>('/public/facilities/').then(r => r.data),
+  availability: (facilityId: string, date: string) =>
+    api.get<{ booked_slots: { start: string; end: string }[] }>(
+      `/public/facilities/${facilityId}/availability/`, { params: { date } }
+    ).then(r => r.data),
+  createBooking: (data: {
+    facility: string
+    booking_date: string
+    start_time: string
+    end_time: string
+    attendees_count: number
+    purpose: string
+    guest_name: string
+    guest_email: string
+    guest_phone: string
+    guest_company?: string
+  }) => api.post<{ id: string; status: string; total_amount: string; detail: string }>(
+    '/public/bookings/', data
+  ).then(r => r.data),
 }
 
 // ─── Workspace ────────────────────────────────────────────

@@ -45,6 +45,10 @@ class Facility(TimeStampedModel):
         help_text='e.g. {"min_hours": 1, "max_hours": 8, "advance_days": 1, "cancellation_hours": 24}',
     )
     is_active = models.BooleanField(default=True)
+    is_public = models.BooleanField(
+        default=False,
+        help_text='If true, external visitors can book this facility without logging in.',
+    )
 
     class Meta:
         db_table = 'facilities_facility'
