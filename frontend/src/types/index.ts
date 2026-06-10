@@ -338,6 +338,35 @@ export interface Building {
   is_active: boolean
 }
 
+// ─── Seat sub-leasing ─────────────────────────────────────
+export interface SeatLease {
+  id: string
+  desk: string
+  desk_code: string
+  desk_location: string
+  lessor_company: string
+  lessor_company_name: string
+  lessee_name: string
+  lessee_email: string
+  lessee_phone: string
+  lessee_company: string
+  start_date: string
+  end_date: string | null
+  monthly_rate: string
+  status: 'active' | 'ended'
+  status_display: string
+  notes: string
+  created_at: string
+  updated_at: string
+}
+
+export interface AvailableDesk {
+  id: string
+  desk_code: string
+  location: string
+  monthly_rate: string
+}
+
 // ─── Public booking ───────────────────────────────────────
 export interface PublicFacility {
   id: string

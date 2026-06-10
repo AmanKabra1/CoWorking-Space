@@ -28,6 +28,8 @@ import type {
   VendorBillSummary,
   ExportFormat,
   PublicFacility,
+  SeatLease,
+  AvailableDesk,
 } from '@/types'
 
 // ─── Auth ─────────────────────────────────────────────────
@@ -265,6 +267,18 @@ export const publicService = {
   }) => api.post<{ id: string; status: string; total_amount: string; detail: string }>(
     '/public/bookings/', data
   ).then(r => r.data),
+}
+
+// ─── Seat sub-leasing ─────────────────────────────────────
+export const seatLeaseService = {
+  list: (params?: Record<string, string>) =>
+    api.get<PaginatedResponse<SeatLease>>('/subleasing/', { params }).then(r => r.data.results ?? []),
+  availableDesks: () =>
+    api.get<AvailableDesk[]>('/subleasing/available-desks/').then(r => r.data),
+  create: (data: Partial<SeatLease>) =>
+    api.post<SeatLease>('/subleasing/', data).then(r => r.data),
+  end: (id: string) =>
+    api.post<SeatLease>(`/subleasing/${id}/end/`).then(r => r.data),
 }
 
 // ─── Workspace ────────────────────────────────────────────

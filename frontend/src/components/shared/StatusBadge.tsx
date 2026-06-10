@@ -22,6 +22,9 @@ const STATUS_VARIANTS: Record<string, 'default' | 'secondary' | 'destructive' | 
   expected: 'info',
   checked_in: 'success',
   checked_out: 'secondary',
+  // Seat leasing
+  active: 'success',
+  ended: 'secondary',
   // Incubation
   submitted: 'info',
   under_review: 'warning',

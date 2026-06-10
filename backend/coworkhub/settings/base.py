@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'apps.payments.apps.PaymentsConfig',
     'apps.inventory.apps.InventoryConfig',
     'apps.vendors.apps.VendorsConfig',
+    'apps.subleasing.apps.SubleasingConfig',
 ]
 
 MIDDLEWARE = [
