@@ -357,6 +357,28 @@ export interface Floor {
   occupied_desks?: number
 }
 
+// ─── Leases ───────────────────────────────────────────────
+export interface Lease {
+  id: string
+  company: string
+  company_name: string
+  building: string
+  building_name: string
+  floor: string | null
+  floor_name: string | null
+  seats_leased: number
+  seats_used: number
+  seats_available: number
+  start_date: string
+  end_date: string | null
+  monthly_rate: string
+  status: 'active' | 'expired' | 'terminated'
+  status_display: string
+  notes: string
+  created_at: string
+  updated_at: string
+}
+
 // ─── Seat sub-leasing ─────────────────────────────────────
 export interface SeatLease {
   id: string

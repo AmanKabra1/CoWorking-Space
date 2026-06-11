@@ -24,6 +24,7 @@ import {
   Receipt,
   Armchair,
   Sparkles,
+  FileSpreadsheet,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/auth'
@@ -47,6 +48,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/documents', label: 'Documents', icon: FolderOpen, roles: ['super_admin', 'company_admin', 'employee'] },
   { href: '/inventory', label: 'Inventory', icon: Package, roles: ['super_admin', 'company_admin'] },
   { href: '/vendors', label: 'Vendors', icon: Receipt, roles: ['super_admin', 'company_admin'] },
+  { href: '/leases', label: 'Leases', icon: FileSpreadsheet, roles: ['super_admin', 'company_admin'] },
   { href: '/seat-leasing', label: 'Seat Leasing', icon: Armchair, roles: ['super_admin', 'company_admin'] },
   { href: '/analytics', label: 'Analytics', icon: BarChart3, roles: ['super_admin', 'company_admin'] },
   { href: '/buildings', label: 'Buildings', icon: Building2, roles: ['super_admin'] },

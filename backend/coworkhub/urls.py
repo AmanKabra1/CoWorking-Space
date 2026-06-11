@@ -36,6 +36,7 @@ urlpatterns = [
     path('api/v1/inventory/', include('apps.inventory.urls')),
     path('api/v1/vendors/', include('apps.vendors.urls')),
     path('api/v1/subleasing/', include('apps.subleasing.urls')),
+    path('api/v1/leases/', include('apps.leases.urls')),
     path('api/v1/public/', include('apps.bookings.public_urls')),
 
     # OpenAPI
