@@ -1,10 +1,10 @@
 'use client'
 
-import { Bell, User } from 'lucide-react'
+import { Bell, User, Menu } from 'lucide-react'
 import { useAuthStore } from '@/store/auth'
 import { Button } from '@/components/ui/button'
 
-export function Navbar() {
+export function Navbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const { user } = useAuthStore()
 
   const roleBadgeColor: Record<string, string> = {
@@ -14,7 +14,10 @@ export function Navbar() {
   }
 
   return (
-    <header className="h-16 border-b bg-background flex items-center px-6 gap-4">
+    <header className="h-16 border-b bg-background flex items-center px-4 sm:px-6 gap-3">
+      <Button variant="ghost" size="icon" className="lg:hidden" onClick={onMenuClick} aria-label="Open menu">
+        <Menu className="h-5 w-5" />
+      </Button>
       <div className="flex-1" />
 
       <Button variant="ghost" size="icon" asChild>
