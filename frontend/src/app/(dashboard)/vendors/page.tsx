@@ -93,6 +93,12 @@ export default function VendorsPage() {
     onError: () => toast({ title: 'Could not update', variant: 'destructive' }),
   })
 
+  const deleteBill = useMutation({
+    mutationFn: (id: string) => vendorBillService.remove(id),
+    onSuccess: () => { toast({ title: 'Bill deleted' }); invalidateAll() },
+    onError: () => toast({ title: 'Could not delete', variant: 'destructive' }),
+  })
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -262,12 +268,16 @@ export default function VendorsPage() {
                         <Badge variant={STATUS_VARIANT[bill.status]}>{bill.status_display}</Badge>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex justify-end">
-                          {bill.status === 'pending' || bill.status === 'overdue' ? (
+                        <div className="flex justify-end gap-2">
+                          {(bill.status === 'pending' || bill.status === 'overdue') && (
                             <Button size="sm" variant="outline" disabled={markPaid.isPending} onClick={() => markPaid.mutate(bill.id)}>
                               Mark paid
                             </Button>
-                          ) : null}
+                          )}
+                          <Button size="sm" variant="outline" disabled={deleteBill.isPending}
+                            onClick={() => { if (confirm(`Delete bill ${bill.bill_number}?`)) deleteBill.mutate(bill.id) }}>
+                            Delete
+                          </Button>
                         </div>
                       </td>
                     </tr>
