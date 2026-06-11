@@ -30,7 +30,8 @@ const selectClass =
 
 export default function FacilitiesPage() {
   const queryClient = useQueryClient()
-  const isSuperAdmin = useAuthStore(s => s.user?.role === 'super_admin')
+  const role = useAuthStore(s => s.user?.role)
+  const canManage = role === 'super_admin' || role === 'company_admin'
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({
     name: '', facility_type: 'meeting_room', building: '', floor: '',
@@ -46,13 +47,13 @@ export default function FacilitiesPage() {
   const { data: buildings = [] } = useQuery({
     queryKey: ['buildings'],
     queryFn: () => workspaceService.buildings(),
-    enabled: isSuperAdmin,
+    enabled: canManage,
   })
 
   const { data: floors = [] } = useQuery({
     queryKey: ['floors', form.building],
     queryFn: () => workspaceService.floors(form.building),
-    enabled: isSuperAdmin && Boolean(form.building),
+    enabled: canManage && Boolean(form.building),
   })
 
   const createMutation = useMutation({
@@ -86,12 +87,12 @@ export default function FacilitiesPage() {
       <PageHeader
         title="Facilities"
         description="All spaces available for booking"
-        action={isSuperAdmin ? (
+        action={canManage ? (
           <Button onClick={() => setShowForm(v => !v)}>{showForm ? 'Close' : 'New Facility'}</Button>
         ) : undefined}
       />
 
-      {showForm && isSuperAdmin && (
+      {showForm && canManage && (
         <Card>
           <CardContent className="p-4">
             <form
