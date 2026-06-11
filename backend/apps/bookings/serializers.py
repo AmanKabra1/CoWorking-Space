@@ -54,13 +54,13 @@ class BookingSerializer(serializers.ModelSerializer):
             'status', 'booking_type', 'payment_required',
             'purpose', 'attendees_count', 'total_amount',
             'approved_by', 'approved_by_name', 'approved_at',
-            'rejection_reason', 'notes',
+            'rejection_reason', 'checked_in_at', 'notes',
             'created_at', 'updated_at',
         ]
         read_only_fields = [
             'id', 'company', 'booked_by', 'duration_hours', 'total_amount',
             'booking_type', 'payment_required',
-            'approved_by', 'approved_at', 'status', 'created_at', 'updated_at',
+            'approved_by', 'approved_at', 'checked_in_at', 'status', 'created_at', 'updated_at',
         ]
 
     def get_booked_by_name(self, obj):

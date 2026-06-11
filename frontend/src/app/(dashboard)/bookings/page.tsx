@@ -104,6 +104,23 @@ export default function BookingsPage() {
     onSettled: () => setPendingId(null),
   })
 
+  const checkInMutation = useMutation({
+    mutationFn: (id: string) => bookingService.checkIn(id),
+    onMutate: (id) => setPendingId(id),
+    onSuccess: () => { toast({ title: 'Checked in' }); invalidate() },
+    onError: () => toast({ title: 'Could not check in', variant: 'destructive' }),
+    onSettled: () => setPendingId(null),
+  })
+
+  async function openQr(id: string) {
+    try {
+      const blob = await bookingService.qr(id)
+      window.open(URL.createObjectURL(blob), '_blank')
+    } catch {
+      toast({ title: 'Could not load QR', variant: 'destructive' })
+    }
+  }
+
   // Mirror backend CanApproveBooking: super_admin handles all;
   // company_admin handles only their own company's internal bookings.
   function canApprove(b: Booking): boolean {
@@ -284,6 +301,20 @@ export default function BookingsPage() {
                                 >
                                   Mark Paid
                                 </Button>
+                              )}
+                              {(booking.status === 'approved' || booking.status === 'confirmed') && (
+                                <Button size="sm" variant="outline" disabled={busy} onClick={() => openQr(booking.id)}>
+                                  QR
+                                </Button>
+                              )}
+                              {(booking.status === 'approved' || booking.status === 'confirmed') && canApprove(booking) && (
+                                booking.checked_in_at ? (
+                                  <span className="text-xs text-green-600 self-center">✓ In</span>
+                                ) : (
+                                  <Button size="sm" variant="outline" disabled={busy} onClick={() => checkInMutation.mutate(booking.id)}>
+                                    Check in
+                                  </Button>
+                                )
                               )}
                               {canCancel(booking) && booking.status !== 'pending' && (
                                 <Button

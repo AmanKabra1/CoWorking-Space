@@ -77,6 +77,7 @@ export interface Booking {
   total_amount: string
   purpose: string
   rejection_reason: string
+  checked_in_at: string | null
   created_at: string
 }
 
