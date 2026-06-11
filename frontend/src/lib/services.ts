@@ -276,6 +276,14 @@ export const publicService = {
   ).then(r => r.data),
 }
 
+// ─── AI Assistant ─────────────────────────────────────────
+export const aiService = {
+  chat: (message: string, sessionId?: string) =>
+    api.post<{ session_id: string; reply: string; model: string }>(
+      '/ai/chat/', { message, ...(sessionId ? { session_id: sessionId } : {}) }
+    ).then(r => r.data),
+}
+
 // ─── Seat sub-leasing ─────────────────────────────────────
 export const seatLeaseService = {
   list: (params?: Record<string, string>) =>

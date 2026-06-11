@@ -23,6 +23,7 @@ import {
   Package,
   Receipt,
   Armchair,
+  Sparkles,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/auth'
@@ -50,6 +51,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/analytics', label: 'Analytics', icon: BarChart3, roles: ['super_admin', 'company_admin'] },
   { href: '/buildings', label: 'Buildings', icon: Building2, roles: ['super_admin'] },
   { href: '/companies', label: 'Companies', icon: Building2, roles: ['super_admin'] },
+  { href: '/ai-assistant', label: 'AI Assistant', icon: Sparkles, roles: ['super_admin', 'company_admin', 'employee'] },
   { href: '/chat', label: 'Chat', icon: MessageSquare, roles: ['super_admin', 'company_admin', 'employee'] },
   { href: '/community', label: 'Community', icon: Globe, roles: ['super_admin', 'company_admin', 'employee'] },
   { href: '/esign', label: 'E-Sign', icon: FileSignature, roles: ['super_admin', 'company_admin'] },
