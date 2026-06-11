@@ -23,6 +23,7 @@ import type {
   InventoryItem,
   StockMovement,
   Building,
+  Floor,
   Vendor,
   VendorBill,
   VendorBillSummary,
@@ -291,10 +292,14 @@ export const seatLeaseService = {
 export const workspaceService = {
   buildings: () =>
     api.get<PaginatedResponse<Building>>('/workspace/buildings/').then(r => r.data.results ?? []),
+  createBuilding: (data: Partial<Building>) =>
+    api.post<Building>('/workspace/buildings/', data).then(r => r.data),
   floors: (buildingId?: string) =>
-    api.get<PaginatedResponse<{ id: string; name: string; floor_number: number; building: string }>>(
+    api.get<PaginatedResponse<Floor>>(
       '/workspace/floors/', { params: buildingId ? { building: buildingId } : {} }
     ).then(r => r.data.results ?? []),
+  createFloor: (data: Partial<Floor>) =>
+    api.post<Floor>('/workspace/floors/', data).then(r => r.data),
 }
 
 // ─── Inventory ────────────────────────────────────────────

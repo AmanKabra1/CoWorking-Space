@@ -334,9 +334,27 @@ export interface SignatureRequest {
 export interface Building {
   id: string
   name: string
+  address?: string
   city: string
   state: string
+  pincode?: string
+  description?: string
   is_active: boolean
+  total_floors?: number
+  total_desks?: number
+  occupied_desks?: number
+  occupancy_rate?: number
+}
+
+export interface Floor {
+  id: string
+  building: string
+  building_name?: string
+  floor_number: number
+  name: string
+  is_active: boolean
+  total_desks?: number
+  occupied_desks?: number
 }
 
 // ─── Seat sub-leasing ─────────────────────────────────────
