@@ -80,6 +80,12 @@ export const facilityService = {
     api.get<{ booked_slots: { start: string; end: string }[] }>(
       `/facilities/${id}/availability/`, { params: { date } }
     ).then(r => r.data),
+  create: (data: Partial<Facility>) =>
+    api.post<Facility>('/facilities/', data).then(r => r.data),
+  update: (id: string, data: Partial<Facility>) =>
+    api.patch<Facility>(`/facilities/${id}/`, data).then(r => r.data),
+  remove: (id: string) =>
+    api.delete(`/facilities/${id}/`).then(r => r.data),
 }
 
 // ─── Bookings ─────────────────────────────────────────────
@@ -285,6 +291,10 @@ export const seatLeaseService = {
 export const workspaceService = {
   buildings: () =>
     api.get<PaginatedResponse<Building>>('/workspace/buildings/').then(r => r.data.results ?? []),
+  floors: (buildingId?: string) =>
+    api.get<PaginatedResponse<{ id: string; name: string; floor_number: number; building: string }>>(
+      '/workspace/floors/', { params: buildingId ? { building: buildingId } : {} }
+    ).then(r => r.data.results ?? []),
 }
 
 // ─── Inventory ────────────────────────────────────────────
