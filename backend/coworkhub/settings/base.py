@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'apps.inventory.apps.InventoryConfig',
     'apps.vendors.apps.VendorsConfig',
     'apps.subleasing.apps.SubleasingConfig',
+    'apps.leases.apps.LeasesConfig',
 ]
 
 MIDDLEWARE = [

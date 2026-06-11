@@ -31,6 +31,7 @@ import type {
   PublicFacility,
   SeatLease,
   AvailableDesk,
+  Lease,
 } from '@/types'
 
 // ─── Auth ─────────────────────────────────────────────────
@@ -282,6 +283,18 @@ export const aiService = {
     api.post<{ session_id: string; reply: string; model: string }>(
       '/ai/chat/', { message, ...(sessionId ? { session_id: sessionId } : {}) }
     ).then(r => r.data),
+}
+
+// ─── Lease agreements ─────────────────────────────────────
+export const leaseService = {
+  list: (params?: Record<string, string>) =>
+    api.get<PaginatedResponse<Lease>>('/leases/', { params }).then(r => r.data.results ?? []),
+  create: (data: Partial<Lease>) =>
+    api.post<Lease>('/leases/', data).then(r => r.data),
+  update: (id: string, data: Partial<Lease>) =>
+    api.patch<Lease>(`/leases/${id}/`, data).then(r => r.data),
+  remove: (id: string) =>
+    api.delete(`/leases/${id}/`).then(r => r.data),
 }
 
 // ─── Seat sub-leasing ─────────────────────────────────────
