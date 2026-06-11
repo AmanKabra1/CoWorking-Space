@@ -3,6 +3,7 @@
 import { Bell, User, Menu } from 'lucide-react'
 import { useAuthStore } from '@/store/auth'
 import { Button } from '@/components/ui/button'
+import { ThemeToggle } from '@/components/layout/ThemeToggle'
 
 export function Navbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const { user } = useAuthStore()
@@ -19,6 +20,8 @@ export function Navbar({ onMenuClick }: { onMenuClick?: () => void }) {
         <Menu className="h-5 w-5" />
       </Button>
       <div className="flex-1" />
+
+      <ThemeToggle />
 
       <Button variant="ghost" size="icon" asChild>
         <a href="/notifications">
