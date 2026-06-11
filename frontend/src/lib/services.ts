@@ -325,6 +325,10 @@ export const workspaceService = {
     ).then(r => r.data.results ?? []),
   createFloor: (data: Partial<Floor>) =>
     api.post<Floor>('/workspace/floors/', data).then(r => r.data),
+  updateBuilding: (id: string, data: Partial<Building>) =>
+    api.patch<Building>(`/workspace/buildings/${id}/`, data).then(r => r.data),
+  deleteBuilding: (id: string) =>
+    api.delete(`/workspace/buildings/${id}/`).then(r => r.data),
 }
 
 // ─── Inventory ────────────────────────────────────────────

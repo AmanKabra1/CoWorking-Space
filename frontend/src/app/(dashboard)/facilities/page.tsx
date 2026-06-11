@@ -32,7 +32,14 @@ export default function FacilitiesPage() {
   const queryClient = useQueryClient()
   const role = useAuthStore(s => s.user?.role)
   const canManage = role === 'super_admin' || role === 'company_admin'
+  const isSuperAdmin = role === 'super_admin'
   const [showForm, setShowForm] = useState(false)
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => facilityService.remove(id),
+    onSuccess: () => { toast({ title: 'Facility deleted' }); queryClient.invalidateQueries({ queryKey: ['facilities'] }) },
+    onError: () => toast({ title: 'Could not delete', description: 'You may not have permission.', variant: 'destructive' }),
+  })
   const [form, setForm] = useState({
     name: '', facility_type: 'meeting_room', building: '', floor: '',
     capacity: '4', price_per_hour: '0', price_per_day: '0',
@@ -191,6 +198,18 @@ export default function FacilitiesPage() {
                   <DollarSign className="h-3.5 w-3.5" />
                   {formatCurrency(facility.price_per_hour)}/hr
                 </div>
+                {isSuperAdmin && (
+                  <div className="pt-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={deleteMutation.isPending}
+                      onClick={() => { if (confirm(`Delete "${facility.name}"?`)) deleteMutation.mutate(facility.id) }}
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}

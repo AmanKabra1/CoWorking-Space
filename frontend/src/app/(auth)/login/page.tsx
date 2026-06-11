@@ -66,6 +66,7 @@ export default function LoginPage() {
                 type="email"
                 placeholder="you@company.com"
                 autoComplete="email"
+                disabled={loading}
                 {...register('email')}
               />
               {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
@@ -79,6 +80,7 @@ export default function LoginPage() {
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   className="pr-10"
+                  disabled={loading}
                   {...register('password')}
                 />
                 <button

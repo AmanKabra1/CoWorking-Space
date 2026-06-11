@@ -51,6 +51,16 @@ export default function BuildingsPage() {
     onError: () => toast({ title: 'Could not create building', description: 'Check the fields.', variant: 'destructive' }),
   })
 
+  const deleteBuilding = useMutation({
+    mutationFn: (id: string) => workspaceService.deleteBuilding(id),
+    onSuccess: () => {
+      toast({ title: 'Building deleted' })
+      queryClient.invalidateQueries({ queryKey: ['buildings'] })
+      setSelected(null)
+    },
+    onError: () => toast({ title: 'Could not delete', description: 'It may have floors/facilities still linked.', variant: 'destructive' }),
+  })
+
   const createFloor = useMutation({
     mutationFn: () => workspaceService.createFloor({
       building: selected!,
@@ -129,7 +139,20 @@ export default function BuildingsPage() {
                 <p className="text-center py-8 text-muted-foreground">Select a building to manage its floors.</p>
               ) : (
                 <div className="space-y-4">
-                  <h2 className="text-sm font-semibold">Floors</h2>
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-sm font-semibold">Floors</h2>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={deleteBuilding.isPending}
+                      onClick={() => {
+                        const b = buildings.find(x => x.id === selected)
+                        if (b && confirm(`Delete building "${b.name}"? This cannot be undone.`)) deleteBuilding.mutate(selected)
+                      }}
+                    >
+                      Delete building
+                    </Button>
+                  </div>
                   <div className="space-y-1.5">
                     {floors.length === 0 && <p className="text-sm text-muted-foreground">No floors yet.</p>}
                     {floors.map((f) => (
