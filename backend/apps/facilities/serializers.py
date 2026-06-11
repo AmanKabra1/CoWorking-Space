@@ -33,6 +33,7 @@ class FacilityListSerializer(serializers.ModelSerializer):
 class FacilitySerializer(serializers.ModelSerializer):
     building_name = serializers.CharField(source='building.name', read_only=True)
     floor_name = serializers.CharField(source='floor.name', read_only=True, default=None)
+    owner_company_name = serializers.CharField(source='owner_company.name', read_only=True, default=None)
     images = FacilityImageSerializer(many=True, read_only=True)
 
     class Meta:
@@ -40,11 +41,12 @@ class FacilitySerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'facility_type',
             'building', 'building_name', 'floor', 'floor_name',
+            'owner_company', 'owner_company_name',
             'capacity', 'price_per_hour', 'price_per_day',
             'description', 'amenities', 'booking_rules',
             'images', 'is_active', 'is_public', 'created_at', 'updated_at',
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'owner_company', 'created_at', 'updated_at']
 
 
 class AddFacilityImageSerializer(serializers.ModelSerializer):

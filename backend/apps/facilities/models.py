@@ -32,6 +32,12 @@ class Facility(TimeStampedModel):
         'workspace.Floor', on_delete=models.SET_NULL,
         null=True, blank=True, related_name='facilities',
     )
+    # Null = building-wide facility owned by the operator (super admin).
+    # Set = a facility a company added (for its team and/or the public).
+    owner_company = models.ForeignKey(
+        'companies.Company', on_delete=models.CASCADE,
+        null=True, blank=True, related_name='owned_facilities',
+    )
     capacity = models.PositiveIntegerField()
     price_per_hour = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     price_per_day = models.DecimalField(max_digits=10, decimal_places=2, default=0)

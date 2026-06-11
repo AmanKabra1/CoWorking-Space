@@ -30,10 +30,19 @@ class FacilityViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'description']
 
     def get_queryset(self):
-        return Facility.objects.select_related('building', 'floor').prefetch_related('images')
+        return Facility.objects.select_related('building', 'floor', 'owner_company').prefetch_related('images')
 
     def get_serializer_class(self):
         return FacilityListSerializer if self.action == 'list' else FacilitySerializer
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        # Company admins' facilities are owned by their company; super-admin
+        # facilities are building-wide (owner_company stays null).
+        if user.is_company_admin and not user.is_super_admin:
+            serializer.save(owner_company_id=user.company_id)
+        else:
+            serializer.save()
 
     # ─── Availability ─────────────────────────────────────
 
