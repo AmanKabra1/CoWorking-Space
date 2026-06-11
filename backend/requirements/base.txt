@@ -13,6 +13,8 @@ whitenoise==6.7.0
 reportlab==4.5.1
 qrcode==8.2
 google-generativeai==0.8.3
+groq==1.4.0
+langgraph==1.2.4
 django-celery-beat==2.7.0
 django-celery-results==2.5.1
 openpyxl==3.1.5

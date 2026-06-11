@@ -51,9 +51,11 @@ CMD python manage.py migrate --noinput && \
     (python manage.py createsuperuser --noinput || true) && \
     exec gunicorn coworkhub.wsgi:application \
      --bind 0.0.0.0:8000 \
-     --workers 4 \
+     --workers ${WEB_CONCURRENCY:-2} \
      --worker-class gthread \
-     --threads 2 \
+     --threads 4 \
      --timeout 120 \
+     --max-requests 400 \
+     --max-requests-jitter 50 \
      --access-logfile - \
      --error-logfile -

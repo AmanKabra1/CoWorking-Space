@@ -196,5 +196,9 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
-# ─── AI / Gemini ──────────────────────────────────────────
-GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
+# ─── AI providers (set ONE — Groq preferred if both present) ──
+GROQ_API_KEY = config('GROQ_API_KEY', default='')
+GOOGLE_API_KEY = config('GOOGLE_API_KEY', default='')
+GEMINI_API_KEY = config('GEMINI_API_KEY', default='')  # legacy alias for GOOGLE_API_KEY
+GROQ_MODEL = config('GROQ_MODEL', default='llama-3.3-70b-versatile')
+GEMINI_MODEL = config('GEMINI_MODEL', default='gemini-1.5-flash')
