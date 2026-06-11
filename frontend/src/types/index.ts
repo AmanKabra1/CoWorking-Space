@@ -402,6 +402,40 @@ export interface SeatLease {
   updated_at: string
 }
 
+export interface SeatListing {
+  id: string
+  lessor_company: string
+  lessor_company_name: string
+  building: string
+  building_name: string
+  floor: string | null
+  floor_name: string | null
+  title: string
+  seats_available: number
+  monthly_rate: string
+  description: string
+  is_open: boolean
+  application_count: number
+  pending_count: number
+  created_at: string
+  updated_at: string
+}
+
+export interface SeatApplication {
+  id: string
+  listing: string
+  listing_title: string
+  startup_name: string
+  contact_email: string
+  contact_phone: string
+  seats_requested: number
+  message: string
+  status: 'pending' | 'approved' | 'rejected'
+  status_display: string
+  reviewed_at: string | null
+  created_at: string
+}
+
 export interface AvailableDesk {
   id: string
   desk_code: string

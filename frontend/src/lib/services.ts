@@ -32,6 +32,8 @@ import type {
   SeatLease,
   AvailableDesk,
   Lease,
+  SeatListing,
+  SeatApplication,
 } from '@/types'
 
 // ─── Auth ─────────────────────────────────────────────────
@@ -287,6 +289,24 @@ export const aiService = {
     api.post<{ session_id: string; reply: string; model: string }>(
       '/ai/chat/', { message, ...(sessionId ? { session_id: sessionId } : {}) }
     ).then(r => r.data),
+}
+
+// ─── Startup seat listings + applications ────────────────
+export const seatListingService = {
+  list: () =>
+    api.get<PaginatedResponse<SeatListing>>('/subleasing/listings/').then(r => r.data.results ?? []),
+  create: (data: Partial<SeatListing>) =>
+    api.post<SeatListing>('/subleasing/listings/', data).then(r => r.data),
+  remove: (id: string) =>
+    api.delete(`/subleasing/listings/${id}/`).then(r => r.data),
+  applications: (listingId?: string) =>
+    api.get<PaginatedResponse<SeatApplication>>('/subleasing/applications/', { params: listingId ? { listing: listingId } : {} }).then(r => r.data.results ?? []),
+  apply: (data: Partial<SeatApplication>) =>
+    api.post<SeatApplication>('/subleasing/applications/', data).then(r => r.data),
+  approve: (id: string) =>
+    api.post<SeatApplication>(`/subleasing/applications/${id}/approve/`).then(r => r.data),
+  reject: (id: string) =>
+    api.post<SeatApplication>(`/subleasing/applications/${id}/reject/`).then(r => r.data),
 }
 
 // ─── Lease agreements ─────────────────────────────────────

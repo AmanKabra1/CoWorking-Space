@@ -43,3 +43,62 @@ class SeatLease(TimeStampedModel):
 
     def __str__(self):
         return f'{self.desk.desk_code} → {self.lessee_name} ({self.get_status_display()})'
+
+
+class SeatListing(TimeStampedModel):
+    """
+    Spare seats a company opens to startups. The company admin posts a listing;
+    startups apply; the company admin approves (super admin is notified only).
+    """
+
+    lessor_company = models.ForeignKey(
+        'companies.Company', on_delete=models.CASCADE, related_name='seat_listings'
+    )
+    building = models.ForeignKey(
+        'workspace.Building', on_delete=models.CASCADE, related_name='seat_listings'
+    )
+    floor = models.ForeignKey(
+        'workspace.Floor', on_delete=models.SET_NULL, null=True, blank=True, related_name='seat_listings'
+    )
+    title = models.CharField(max_length=200)
+    seats_available = models.PositiveIntegerField(default=1)
+    monthly_rate = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    description = models.TextField(blank=True)
+    is_open = models.BooleanField(default=True, help_text='Accepting applications')
+
+    class Meta:
+        db_table = 'subleasing_seatlisting'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.title} — {self.lessor_company.name} ({self.seats_available} seats)'
+
+
+class SeatApplication(TimeStampedModel):
+    """A startup's application to a SeatListing."""
+
+    PENDING = 'pending'
+    APPROVED = 'approved'
+    REJECTED = 'rejected'
+
+    STATUS_CHOICES = [
+        (PENDING, 'Pending'),
+        (APPROVED, 'Approved'),
+        (REJECTED, 'Rejected'),
+    ]
+
+    listing = models.ForeignKey(SeatListing, on_delete=models.CASCADE, related_name='applications')
+    startup_name = models.CharField(max_length=200)
+    contact_email = models.EmailField()
+    contact_phone = models.CharField(max_length=15, blank=True)
+    seats_requested = models.PositiveIntegerField(default=1)
+    message = models.TextField(blank=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=PENDING)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'subleasing_seatapplication'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.startup_name} → {self.listing.title} ({self.get_status_display()})'
