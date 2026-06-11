@@ -74,6 +74,9 @@ class Booking(TimeStampedModel):
     approved_at = models.DateTimeField(null=True, blank=True)
     rejection_reason = models.TextField(blank=True)
 
+    # QR-based check-in (set when the attendee is checked in at the facility)
+    checked_in_at = models.DateTimeField(null=True, blank=True)
+
     # Internal (Super Admin only)
     notes = models.TextField(blank=True)
 

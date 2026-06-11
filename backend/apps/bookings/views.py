@@ -1,6 +1,9 @@
+import io
+
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.http import HttpResponse
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema, extend_schema_view
 
@@ -63,7 +66,7 @@ class BookingViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action == 'create':
             return [CanCreateBooking()]
-        if self.action in ['approve', 'reject', 'complete', 'confirm']:
+        if self.action in ['approve', 'reject', 'complete', 'confirm', 'check_in']:
             return [CanApproveBooking()]
         return [permissions.IsAuthenticated()]
 
@@ -178,6 +181,36 @@ class BookingViewSet(viewsets.ModelViewSet):
         booking.status = Booking.CONFIRMED
         booking.save(update_fields=['status', 'updated_at'])
         notify_guest_booking_confirmed(booking)
+        return Response(BookingSerializer(booking).data)
+
+    @extend_schema(tags=['Bookings'])
+    @action(detail=True, methods=['get'], url_path='qr')
+    def qr(self, request, pk=None):
+        """PNG QR code for this booking — staff scan it at the facility to check in."""
+        booking = self.get_object()
+        import qrcode
+        img = qrcode.make(f'CWH-BOOKING:{booking.id}')
+        buf = io.BytesIO()
+        img.save(buf, format='PNG')
+        buf.seek(0)
+        resp = HttpResponse(buf.read(), content_type='image/png')
+        resp['Content-Disposition'] = f'inline; filename="booking-{booking.id}.png"'
+        return resp
+
+    @extend_schema(tags=['Bookings'], responses={200: BookingSerializer})
+    @action(detail=True, methods=['post'], url_path='check-in')
+    def check_in(self, request, pk=None):
+        """Mark the attendee as checked in. Staff (super admin / company admin)."""
+        booking = self.get_object()
+        if booking.status not in [Booking.APPROVED, Booking.CONFIRMED]:
+            return Response(
+                {'detail': 'Only approved or confirmed bookings can be checked in.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if booking.checked_in_at:
+            return Response({'detail': 'Already checked in.'}, status=status.HTTP_400_BAD_REQUEST)
+        booking.checked_in_at = timezone.now()
+        booking.save(update_fields=['checked_in_at', 'updated_at'])
         return Response(BookingSerializer(booking).data)
 
     # ─── List actions ──────────────────────────────────────
