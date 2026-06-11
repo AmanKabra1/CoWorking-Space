@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { seatLeaseService } from '@/lib/services'
+import { useAuthStore } from '@/store/auth'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { toast } from '@/hooks/use-toast'
 
@@ -17,6 +18,7 @@ const selectClass =
 
 export default function SeatLeasingPage() {
   const queryClient = useQueryClient()
+  const isCompanyAdmin = useAuthStore(s => s.user?.role === 'company_admin')
   const [showForm, setShowForm] = useState(false)
   const [pendingId, setPendingId] = useState<string | null>(null)
   const [form, setForm] = useState({
@@ -78,7 +80,7 @@ export default function SeatLeasingPage() {
       <PageHeader
         title="Seat Leasing"
         description="Sub-lease your company's spare desks to other tenants"
-        action={
+        action={!isCompanyAdmin ? undefined :
           <Button onClick={() => setShowForm(v => !v)} disabled={desks.length === 0 && !showForm}>
             {showForm ? 'Close' : 'Sub-lease a Seat'}
           </Button>
@@ -183,7 +185,7 @@ export default function SeatLeasingPage() {
                       <td className="px-4 py-3"><StatusBadge status={lease.status} /></td>
                       <td className="px-4 py-3">
                         <div className="flex justify-end">
-                          {lease.status === 'active' && (
+                          {lease.status === 'active' && isCompanyAdmin && (
                             <Button size="sm" variant="outline" disabled={pendingId === lease.id} onClick={() => endMutation.mutate(lease.id)}>
                               End
                             </Button>
