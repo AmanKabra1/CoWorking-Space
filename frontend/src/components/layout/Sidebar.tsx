@@ -50,6 +50,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/vendors', label: 'Vendors', icon: Receipt, roles: ['super_admin', 'company_admin'] },
   { href: '/leases', label: 'Leases', icon: FileSpreadsheet, roles: ['super_admin', 'company_admin'] },
   { href: '/seat-leasing', label: 'Seat Leasing', icon: Armchair, roles: ['super_admin', 'company_admin'] },
+  { href: '/seat-listings', label: 'Startup Seats', icon: Armchair, roles: ['super_admin', 'company_admin'] },
   { href: '/analytics', label: 'Analytics', icon: BarChart3, roles: ['super_admin', 'company_admin'] },
   { href: '/buildings', label: 'Buildings', icon: Building2, roles: ['super_admin'] },
   { href: '/companies', label: 'Companies', icon: Building2, roles: ['super_admin'] },
