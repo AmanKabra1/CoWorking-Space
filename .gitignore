@@ -48,3 +48,6 @@ Thumbs.db
 
 # Docker
 *.override.yml
+
+# Local agent guide (keep out of GitHub)
+/CLAUDE.md
