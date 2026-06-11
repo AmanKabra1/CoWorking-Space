@@ -8,15 +8,18 @@ import { useAuthStore } from '@/store/auth'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
-  const { isAuthenticated } = useAuthStore()
+  const { isAuthenticated, hasHydrated } = useAuthStore()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    // Wait for the persisted store to rehydrate before deciding — otherwise a
+    // refresh redirects to /login even though the user is still signed in.
+    if (hasHydrated && !isAuthenticated) {
       router.replace('/login')
     }
-  }, [isAuthenticated, router])
+  }, [hasHydrated, isAuthenticated, router])
 
+  if (!hasHydrated) return null
   if (!isAuthenticated) return null
 
   return (

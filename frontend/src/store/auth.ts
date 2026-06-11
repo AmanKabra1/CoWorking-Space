@@ -7,9 +7,11 @@ interface AuthState {
   accessToken: string | null
   refreshToken: string | null
   isAuthenticated: boolean
+  hasHydrated: boolean
   setTokens: (access: string, refresh: string) => void
   setUser: (user: User) => void
   logout: () => void
+  setHasHydrated: (v: boolean) => void
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -19,11 +21,13 @@ export const useAuthStore = create<AuthState>()(
       accessToken: null,
       refreshToken: null,
       isAuthenticated: false,
+      hasHydrated: false,
       setTokens: (access, refresh) =>
         set({ accessToken: access, refreshToken: refresh, isAuthenticated: true }),
       setUser: (user) => set({ user }),
       logout: () =>
         set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false }),
+      setHasHydrated: (v) => set({ hasHydrated: v }),
     }),
     {
       name: 'coworkhub-auth',
@@ -33,6 +37,9 @@ export const useAuthStore = create<AuthState>()(
         refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
       }),
+      // Mark hydrated once localStorage has been read, so the dashboard
+      // doesn't bounce to /login on a page refresh before rehydration.
+      onRehydrateStorage: () => (state) => state?.setHasHydrated(true),
     }
   )
 )
