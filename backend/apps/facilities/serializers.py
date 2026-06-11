@@ -42,7 +42,7 @@ class FacilitySerializer(serializers.ModelSerializer):
             'building', 'building_name', 'floor', 'floor_name',
             'capacity', 'price_per_hour', 'price_per_day',
             'description', 'amenities', 'booking_rules',
-            'images', 'is_active', 'created_at', 'updated_at',
+            'images', 'is_active', 'is_public', 'created_at', 'updated_at',
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
 

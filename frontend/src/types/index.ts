@@ -47,6 +47,7 @@ export interface Facility {
   price_per_hour: string
   price_per_day: string
   is_active: boolean
+  is_public: boolean
   is_available: boolean
   building_name?: string
   floor_number?: number
