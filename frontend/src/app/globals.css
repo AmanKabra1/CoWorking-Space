@@ -59,3 +59,95 @@
   * { @apply border-border; }
   body { @apply bg-background text-foreground; }
 }
+
+/* ─── Landing-page FX (pure CSS, no deps) ─────────────────── */
+
+@keyframes aurora-1 {
+  0%, 100% { transform: translate(-10%, -10%) scale(1) rotate(0deg); }
+  33%      { transform: translate(18%, 8%) scale(1.25) rotate(40deg); }
+  66%      { transform: translate(-6%, 16%) scale(0.95) rotate(-30deg); }
+}
+@keyframes aurora-2 {
+  0%, 100% { transform: translate(12%, 10%) scale(1.1) rotate(0deg); }
+  50%      { transform: translate(-15%, -8%) scale(1.35) rotate(60deg); }
+}
+@keyframes aurora-3 {
+  0%, 100% { transform: translate(0%, 18%) scale(1); }
+  50%      { transform: translate(10%, -12%) scale(1.2); }
+}
+@keyframes float-y {
+  0%, 100% { transform: translateY(0) rotateX(8deg) rotateY(-12deg); }
+  50%      { transform: translateY(-18px) rotateX(8deg) rotateY(-12deg); }
+}
+@keyframes marquee-x {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes shimmer-text {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+@keyframes bar-grow {
+  from { transform: scaleY(0.15); }
+  to   { transform: scaleY(1); }
+}
+@keyframes ping-soft {
+  0%   { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+@keyframes orbit-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.fx-aurora-1 { animation: aurora-1 14s ease-in-out infinite; }
+.fx-aurora-2 { animation: aurora-2 18s ease-in-out infinite; }
+.fx-aurora-3 { animation: aurora-3 11s ease-in-out infinite; }
+.fx-float    { animation: float-y 7s ease-in-out infinite; }
+.fx-marquee  { animation: marquee-x 28s linear infinite; }
+.fx-marquee:hover { animation-play-state: paused; }
+.fx-bar      { transform-origin: bottom; animation: bar-grow 1.1s cubic-bezier(.22,1,.36,1) both; }
+.fx-ping     { animation: ping-soft 2.4s cubic-bezier(0,0,.2,1) infinite; }
+.fx-orbit    { animation: orbit-spin 26s linear infinite; }
+
+.fx-shimmer-text {
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer-text 5s linear infinite;
+}
+
+/* Dotted grid backdrop that fades toward the edges */
+.fx-grid {
+  background-image: radial-gradient(hsl(var(--primary) / 0.22) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, black 30%, transparent 75%);
+}
+
+/* Glass surface */
+.fx-glass {
+  background: hsl(var(--card) / 0.65);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid hsl(var(--border) / 0.7);
+}
+
+/* Scroll-reveal (toggled by the Reveal component) */
+.fx-reveal {
+  opacity: 0;
+  transform: translateY(28px) scale(0.985);
+  transition: opacity 0.7s cubic-bezier(.22,1,.36,1), transform 0.7s cubic-bezier(.22,1,.36,1);
+  will-change: opacity, transform;
+}
+.fx-reveal.fx-in {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-aurora-1, .fx-aurora-2, .fx-aurora-3, .fx-float, .fx-marquee,
+  .fx-bar, .fx-ping, .fx-orbit, .fx-shimmer-text { animation: none; }
+  .fx-reveal { opacity: 1; transform: none; transition: none; }
+}
