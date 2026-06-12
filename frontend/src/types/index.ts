@@ -49,8 +49,12 @@ export interface Facility {
   is_active: boolean
   is_public: boolean
   is_available: boolean
+  building?: string
   building_name?: string
+  floor?: string | null
+  floor_name?: string | null
   floor_number?: number
+  owner_company?: string | null
   primary_image?: string
   amenities: string[]
   images: { id: string; image: string; is_primary: boolean }[]
@@ -78,6 +82,23 @@ export interface Booking {
   purpose: string
   rejection_reason: string
   checked_in_at: string | null
+  has_review?: boolean
+  created_at: string
+}
+
+export interface PublicStats {
+  companies: number
+  buildings: number
+  facilities: number
+  bookings: number
+}
+
+export interface PublicReview {
+  rating: number
+  comment: string
+  reviewer_name: string
+  company_name: string
+  facility_name: string
   created_at: string
 }
 

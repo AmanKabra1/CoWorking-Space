@@ -2,7 +2,7 @@ from decimal import Decimal
 from datetime import datetime
 from rest_framework import serializers
 from django.utils import timezone
-from .models import Booking
+from .models import Booking, BookingReview
 from apps.companies.models import Company
 
 
@@ -20,8 +20,9 @@ def _compute_booking_financials(facility, start_time, end_time):
 class BookingListSerializer(serializers.ModelSerializer):
     facility_name = serializers.CharField(source='facility.name', read_only=True)
     facility_type = serializers.CharField(source='facility.facility_type', read_only=True)
-    company_name = serializers.CharField(source='company.name', read_only=True)
+    company_name = serializers.CharField(source='company.name', read_only=True, default=None)
     booked_by_name = serializers.SerializerMethodField()
+    has_review = serializers.SerializerMethodField()
 
     class Meta:
         model = Booking
@@ -29,19 +30,24 @@ class BookingListSerializer(serializers.ModelSerializer):
             'id', 'facility', 'facility_name', 'facility_type',
             'company', 'company_name', 'booked_by', 'booked_by_name',
             'booking_date', 'start_time', 'end_time', 'duration_hours',
-            'status', 'booking_type', 'payment_required',
-            'purpose', 'attendees_count', 'total_amount',
+            'status', 'booking_type', 'payment_required', 'checked_in_at',
+            'purpose', 'attendees_count', 'total_amount', 'has_review',
             'created_at',
         ]
 
     def get_booked_by_name(self, obj):
-        return obj.booked_by.get_full_name()
+        if obj.booked_by:
+            return obj.booked_by.get_full_name()
+        return obj.guest_name or None
+
+    def get_has_review(self, obj):
+        return hasattr(obj, 'review')
 
 
 class BookingSerializer(serializers.ModelSerializer):
     facility_name = serializers.CharField(source='facility.name', read_only=True)
     facility_type = serializers.CharField(source='facility.facility_type', read_only=True)
-    company_name = serializers.CharField(source='company.name', read_only=True)
+    company_name = serializers.CharField(source='company.name', read_only=True, default=None)
     booked_by_name = serializers.SerializerMethodField()
     approved_by_name = serializers.SerializerMethodField()
 
@@ -64,7 +70,9 @@ class BookingSerializer(serializers.ModelSerializer):
         ]
 
     def get_booked_by_name(self, obj):
-        return obj.booked_by.get_full_name()
+        if obj.booked_by:
+            return obj.booked_by.get_full_name()
+        return obj.guest_name or None
 
     def get_approved_by_name(self, obj):
         return obj.approved_by.get_full_name() if obj.approved_by else None
@@ -248,3 +256,20 @@ class CalendarBookingSerializer(serializers.ModelSerializer):
             'booking_date', 'start_time', 'end_time', 'duration_hours',
             'status', 'total_amount',
         ]
+
+
+class BookingReviewSerializer(serializers.ModelSerializer):
+    facility_name = serializers.CharField(source='facility.name', read_only=True)
+
+    class Meta:
+        model = BookingReview
+        fields = [
+            'id', 'booking', 'facility', 'facility_name',
+            'rating', 'comment', 'reviewer_name', 'company_name', 'created_at',
+        ]
+        read_only_fields = ['id', 'booking', 'facility', 'reviewer_name', 'company_name', 'created_at']
+
+    def validate_rating(self, value):
+        if not 1 <= value <= 5:
+            raise serializers.ValidationError('Rating must be between 1 and 5.')
+        return value

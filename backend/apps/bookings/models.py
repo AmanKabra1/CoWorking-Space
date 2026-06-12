@@ -100,3 +100,26 @@ class Booking(TimeStampedModel):
         if duration >= 8:
             return self.facility.price_per_day
         return (self.facility.price_per_hour * duration).quantize(Decimal('0.01'))
+
+
+class BookingReview(TimeStampedModel):
+    """
+    Feedback left after a booking is completed/confirmed. Shown on the
+    facility and (best ones) as testimonials on the public landing page.
+    """
+
+    booking = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name='review')
+    facility = models.ForeignKey(
+        'facilities.Facility', on_delete=models.CASCADE, related_name='reviews'
+    )
+    rating = models.PositiveSmallIntegerField(help_text='1–5 stars')
+    comment = models.TextField(blank=True)
+    reviewer_name = models.CharField(max_length=150)
+    company_name = models.CharField(max_length=200, blank=True)
+
+    class Meta:
+        db_table = 'bookings_bookingreview'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.facility.name} — {self.rating}★ by {self.reviewer_name}'

@@ -7,11 +7,11 @@ from django.http import HttpResponse
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema, extend_schema_view
 
-from .models import Booking
+from .models import Booking, BookingReview
 from .serializers import (
     BookingSerializer, BookingListSerializer,
     CreateBookingSerializer, RejectBookingSerializer,
-    CalendarBookingSerializer,
+    CalendarBookingSerializer, BookingReviewSerializer,
 )
 from .permissions import CanCreateBooking, CanApproveBooking
 from .emails import (
@@ -182,6 +182,44 @@ class BookingViewSet(viewsets.ModelViewSet):
         booking.save(update_fields=['status', 'updated_at'])
         notify_guest_booking_confirmed(booking)
         return Response(BookingSerializer(booking).data)
+
+    @extend_schema(tags=['Bookings'], request=BookingReviewSerializer, responses={201: BookingReviewSerializer})
+    @action(detail=True, methods=['post'], url_path='review')
+    def review(self, request, pk=None):
+        """
+        Leave a rating + comment after a booking. Allowed for the person who
+        booked it (or their company admin / super admin), once per booking,
+        only when the booking is confirmed or completed.
+        """
+        booking = self.get_object()
+        user = request.user
+
+        if booking.status not in [Booking.CONFIRMED, Booking.COMPLETED]:
+            return Response(
+                {'detail': 'You can review a booking only after it is confirmed or completed.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if hasattr(booking, 'review'):
+            return Response({'detail': 'This booking already has a review.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        is_booker = booking.booked_by_id == user.id
+        is_company_admin = user.is_company_admin and booking.company_id == user.company_id
+        if not (is_booker or is_company_admin or user.is_super_admin):
+            return Response({'detail': 'Only the booker or their admin can review this booking.'},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        serializer = BookingReviewSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        review = BookingReview.objects.create(
+            booking=booking,
+            facility=booking.facility,
+            rating=serializer.validated_data['rating'],
+            comment=serializer.validated_data.get('comment', ''),
+            reviewer_name=user.get_full_name() or booking.guest_name or 'Member',
+            company_name=booking.company.name if booking.company else booking.guest_company,
+        )
+        return Response(BookingReviewSerializer(review).data, status=status.HTTP_201_CREATED)
 
     @extend_schema(tags=['Bookings'])
     @action(detail=True, methods=['get'], url_path='qr')
