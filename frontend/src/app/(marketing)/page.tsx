@@ -6,6 +6,7 @@ import {
   ArrowRight,
   Building2,
 } from 'lucide-react'
+import { LandingStats, LandingReviews } from '@/components/marketing/LandingLive'
 
 const features = [
   {
@@ -37,7 +38,11 @@ export default function MarketingHomePage() {
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-primary/10 via-background to-background"
         />
-        <div className="max-w-6xl mx-auto px-4 py-24 text-center">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 -z-10 h-[480px] w-[840px] max-w-full rounded-full bg-primary/15 blur-3xl"
+        />
+        <div className="max-w-6xl mx-auto px-4 py-20 sm:py-24 text-center">
           <div className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium text-muted-foreground mb-6">
             <Building2 className="h-3.5 w-3.5" />
             The Modern OS for Coworking Spaces
@@ -53,21 +58,24 @@ export default function MarketingHomePage() {
           </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/login"
-              className="inline-flex items-center justify-center gap-2 rounded-md px-8 py-3 text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+              href="/book"
+              className="inline-flex items-center justify-center gap-2 rounded-md px-8 py-3 text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-lg shadow-primary/25"
             >
-              Get Started
+              Book a Space
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               href="/login"
               className="inline-flex items-center justify-center gap-2 rounded-md border px-8 py-3 text-sm font-semibold text-foreground hover:bg-accent transition-colors"
             >
-              View Demo
+              Sign In
             </Link>
           </div>
         </div>
       </section>
+
+      {/* Live platform stats (real numbers) */}
+      <LandingStats />
 
       {/* Features */}
       <section className="py-20 bg-muted/40">
@@ -96,6 +104,9 @@ export default function MarketingHomePage() {
           </div>
         </div>
       </section>
+
+      {/* Real member reviews (from completed bookings) */}
+      <LandingReviews />
 
       {/* CTA Banner */}
       <section className="py-20 bg-muted/40">

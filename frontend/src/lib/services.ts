@@ -29,6 +29,8 @@ import type {
   VendorBillSummary,
   ExportFormat,
   PublicFacility,
+  PublicStats,
+  PublicReview,
   SeatLease,
   AvailableDesk,
   Lease,
@@ -119,6 +121,8 @@ export const bookingService = {
     api.post<Booking>(`/bookings/${id}/confirm/`).then(r => r.data),
   checkIn: (id: string) =>
     api.post<Booking>(`/bookings/${id}/check-in/`).then(r => r.data),
+  review: (id: string, rating: number, comment: string) =>
+    api.post(`/bookings/${id}/review/`, { rating, comment }).then(r => r.data),
   qr: (id: string) =>
     api.get(`/bookings/${id}/qr/`, { responseType: 'blob' }).then(r => r.data as Blob),
   pendingQueue: () =>
@@ -281,6 +285,10 @@ export const publicService = {
   }) => api.post<{ id: string; status: string; total_amount: string; detail: string }>(
     '/public/bookings/', data
   ).then(r => r.data),
+  stats: () =>
+    api.get<PublicStats>('/public/stats/').then(r => r.data),
+  reviews: () =>
+    api.get<PublicReview[]>('/public/reviews/').then(r => r.data),
 }
 
 // ─── AI Assistant ─────────────────────────────────────────

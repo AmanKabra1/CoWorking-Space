@@ -79,3 +79,50 @@ class PublicBookingCreateView(generics.CreateAPIView):
             },
             status=status.HTTP_201_CREATED,
         )
+
+
+@extend_schema(tags=['Public'])
+class PublicStatsView(APIView):
+    """Live platform counts for the landing page. No auth."""
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        from apps.companies.models import Company
+        from apps.workspace.models import Building
+        return Response({
+            'companies': Company.objects.filter(status='active').count(),
+            'buildings': Building.objects.filter(is_active=True).count(),
+            'facilities': Facility.objects.filter(is_active=True).count(),
+            'bookings': Booking.objects.filter(
+                status__in=[Booking.APPROVED, Booking.CONFIRMED, Booking.COMPLETED]
+            ).count(),
+        })
+
+
+@extend_schema(tags=['Public'])
+class PublicReviewListView(APIView):
+    """Latest high-rated reviews (real testimonials) for the landing page. No auth."""
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        from .models import BookingReview
+        reviews = (
+            BookingReview.objects
+            .filter(rating__gte=4)
+            .exclude(comment='')
+            .select_related('facility')
+            .order_by('-created_at')[:9]
+        )
+        return Response([
+            {
+                'rating': r.rating,
+                'comment': r.comment,
+                'reviewer_name': r.reviewer_name,
+                'company_name': r.company_name,
+                'facility_name': r.facility.name,
+                'created_at': r.created_at.date().isoformat(),
+            }
+            for r in reviews
+        ])

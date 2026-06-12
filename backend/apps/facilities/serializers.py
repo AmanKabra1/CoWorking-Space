@@ -19,7 +19,7 @@ class FacilityListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'facility_type', 'building', 'building_name',
             'floor', 'floor_name', 'capacity', 'price_per_hour', 'price_per_day',
-            'is_active', 'primary_image',
+            'is_active', 'is_public', 'owner_company', 'description', 'primary_image',
         ]
 
     def get_primary_image(self, obj):

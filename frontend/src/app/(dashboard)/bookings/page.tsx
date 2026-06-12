@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Fragment } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { ExportButtons } from '@/components/shared/ExportButtons'
@@ -120,6 +120,26 @@ export default function BookingsPage() {
       toast({ title: 'Could not load QR', variant: 'destructive' })
     }
   }
+
+  const [reviewing, setReviewing] = useState<string | null>(null)
+  const [reviewRating, setReviewRating] = useState(5)
+  const [reviewComment, setReviewComment] = useState('')
+
+  const reviewMutation = useMutation({
+    mutationFn: ({ id, rating, comment }: { id: string; rating: number; comment: string }) =>
+      bookingService.review(id, rating, comment),
+    onSuccess: () => {
+      toast({ title: 'Thanks for your feedback!' })
+      setReviewing(null)
+      setReviewComment('')
+      setReviewRating(5)
+      invalidate()
+    },
+    onError: (e: unknown) => {
+      const detail = (e as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+      toast({ title: 'Could not submit review', description: detail ?? 'Try again.', variant: 'destructive' })
+    },
+  })
 
   // Mirror backend CanApproveBooking: super_admin handles all;
   // company_admin handles only their own company's internal bookings.
@@ -254,7 +274,8 @@ export default function BookingsPage() {
                   {data?.results?.map((booking) => {
                     const busy = pendingId === booking.id
                     return (
-                      <tr key={booking.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
+                      <Fragment key={booking.id}>
+                      <tr className="border-b last:border-0 hover:bg-muted/30 transition-colors">
                         <td className="px-4 py-3 font-medium">{booking.facility_name}</td>
                         <td className="px-4 py-3 text-muted-foreground">{formatDate(booking.booking_date)}</td>
                         <td className="px-4 py-3 text-muted-foreground">
@@ -326,10 +347,58 @@ export default function BookingsPage() {
                                   Cancel
                                 </Button>
                               )}
+                              {['confirmed', 'completed'].includes(booking.status) && !booking.has_review && (
+                                <Button size="sm" variant="outline" onClick={() => setReviewing(reviewing === booking.id ? null : booking.id)}>
+                                  ★ Review
+                                </Button>
+                              )}
+                              {booking.has_review && <span className="text-xs text-amber-500 self-center">★ Reviewed</span>}
                             </div>
                           </td>
                         )}
                       </tr>
+                      {reviewing === booking.id && (
+                        <tr className="border-b bg-muted/20">
+                          <td colSpan={showActions ? 7 : 6} className="px-4 py-3">
+                            <form
+                              onSubmit={(e) => {
+                                e.preventDefault()
+                                reviewMutation.mutate({ id: booking.id, rating: reviewRating, comment: reviewComment })
+                              }}
+                              className="flex flex-col sm:flex-row sm:items-center gap-3"
+                            >
+                              <div className="flex items-center gap-1">
+                                {[1, 2, 3, 4, 5].map((n) => (
+                                  <button
+                                    key={n}
+                                    type="button"
+                                    onClick={() => setReviewRating(n)}
+                                    className={`text-xl leading-none ${n <= reviewRating ? 'text-amber-400' : 'text-muted-foreground/40'}`}
+                                    aria-label={`${n} star${n > 1 ? 's' : ''}`}
+                                  >
+                                    ★
+                                  </button>
+                                ))}
+                              </div>
+                              <Input
+                                value={reviewComment}
+                                onChange={(e) => setReviewComment(e.target.value)}
+                                placeholder="How was your experience? (shown as a testimonial)"
+                                className="flex-1"
+                              />
+                              <div className="flex gap-2">
+                                <Button type="submit" size="sm" disabled={reviewMutation.isPending}>
+                                  {reviewMutation.isPending ? 'Submitting…' : 'Submit'}
+                                </Button>
+                                <Button type="button" size="sm" variant="outline" onClick={() => setReviewing(null)}>
+                                  Cancel
+                                </Button>
+                              </div>
+                            </form>
+                          </td>
+                        </tr>
+                      )}
+                      </Fragment>
                     )
                   })}
                 </tbody>

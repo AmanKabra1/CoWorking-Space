@@ -28,22 +28,56 @@ const FACILITY_TYPES = [
 const selectClass =
   'flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring'
 
+const EMPTY_FORM = {
+  name: '', facility_type: 'meeting_room', building: '', floor: '',
+  capacity: '4', price_per_hour: '0', price_per_day: '0',
+  description: '', is_public: false,
+}
+
 export default function FacilitiesPage() {
   const queryClient = useQueryClient()
-  const role = useAuthStore(s => s.user?.role)
+  const user = useAuthStore(s => s.user)
+  const role = user?.role
   const canManage = role === 'super_admin' || role === 'company_admin'
   const isSuperAdmin = role === 'super_admin'
   const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [form, setForm] = useState(EMPTY_FORM)
+
+  // Super admin manages everything; a company admin manages only the
+  // facilities their company added (owner_company).
+  function canEdit(f: { owner_company?: string | null }): boolean {
+    if (isSuperAdmin) return true
+    return role === 'company_admin' && !!f.owner_company && f.owner_company === user?.company
+  }
+
+  function startEdit(f: import('@/types').Facility) {
+    setEditingId(f.id)
+    setForm({
+      name: f.name,
+      facility_type: f.facility_type,
+      building: f.building ?? '',
+      floor: f.floor ?? '',
+      capacity: String(f.capacity),
+      price_per_hour: String(f.price_per_hour),
+      price_per_day: String(f.price_per_day),
+      description: f.description ?? '',
+      is_public: f.is_public,
+    })
+    setShowForm(true)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function closeForm() {
+    setShowForm(false)
+    setEditingId(null)
+    setForm(EMPTY_FORM)
+  }
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => facilityService.remove(id),
     onSuccess: () => { toast({ title: 'Facility deleted' }); queryClient.invalidateQueries({ queryKey: ['facilities'] }) },
     onError: () => toast({ title: 'Could not delete', description: 'You may not have permission.', variant: 'destructive' }),
-  })
-  const [form, setForm] = useState({
-    name: '', facility_type: 'meeting_room', building: '', floor: '',
-    capacity: '4', price_per_hour: '0', price_per_day: '0',
-    description: '', is_public: false,
   })
 
   const { data, isLoading } = useQuery({
@@ -63,29 +97,31 @@ export default function FacilitiesPage() {
     enabled: canManage && Boolean(form.building),
   })
 
-  const createMutation = useMutation({
-    mutationFn: () => facilityService.create({
-      name: form.name,
-      facility_type: form.facility_type,
-      building: form.building,
-      floor: form.floor || null,
-      capacity: Number(form.capacity) || 1,
-      price_per_hour: form.price_per_hour,
-      price_per_day: form.price_per_day,
-      description: form.description,
-      is_public: form.is_public,
-    } as never),
+  const saveMutation = useMutation({
+    mutationFn: () => {
+      const payload = {
+        name: form.name,
+        facility_type: form.facility_type,
+        building: form.building,
+        floor: form.floor || null,
+        capacity: Number(form.capacity) || 1,
+        price_per_hour: form.price_per_hour,
+        price_per_day: form.price_per_day,
+        description: form.description,
+        is_public: form.is_public,
+      } as never
+      return editingId ? facilityService.update(editingId, payload) : facilityService.create(payload)
+    },
     onSuccess: () => {
-      toast({ title: 'Facility created' })
+      toast({ title: editingId ? 'Facility updated' : 'Facility created' })
       queryClient.invalidateQueries({ queryKey: ['facilities'] })
-      setShowForm(false)
-      setForm({ name: '', facility_type: 'meeting_room', building: '', floor: '', capacity: '4', price_per_hour: '0', price_per_day: '0', description: '', is_public: false })
+      closeForm()
     },
     onError: (e: unknown) => {
       const data = (e as { response?: { data?: Record<string, string[] | string> } })?.response?.data
       const first = data ? Object.values(data)[0] : null
       const msg = Array.isArray(first) ? first[0] : (first ?? 'Check the fields and try again.')
-      toast({ title: 'Could not create facility', description: String(msg), variant: 'destructive' })
+      toast({ title: editingId ? 'Could not update facility' : 'Could not create facility', description: String(msg), variant: 'destructive' })
     },
   })
 
@@ -95,7 +131,9 @@ export default function FacilitiesPage() {
         title="Facilities"
         description="All spaces available for booking"
         action={canManage ? (
-          <Button onClick={() => setShowForm(v => !v)}>{showForm ? 'Close' : 'New Facility'}</Button>
+          <Button onClick={() => (showForm ? closeForm() : setShowForm(true))}>
+            {showForm ? 'Close' : 'New Facility'}
+          </Button>
         ) : undefined}
       />
 
@@ -103,7 +141,7 @@ export default function FacilitiesPage() {
         <Card>
           <CardContent className="p-4">
             <form
-              onSubmit={(e) => { e.preventDefault(); createMutation.mutate() }}
+              onSubmit={(e) => { e.preventDefault(); saveMutation.mutate() }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
             >
               <div className="space-y-1.5">
@@ -151,8 +189,8 @@ export default function FacilitiesPage() {
                 Open for public (no-login) booking
               </label>
               <div className="flex items-end">
-                <Button type="submit" disabled={createMutation.isPending}>
-                  {createMutation.isPending ? 'Saving…' : 'Create Facility'}
+                <Button type="submit" disabled={saveMutation.isPending}>
+                  {saveMutation.isPending ? 'Saving…' : editingId ? 'Save Changes' : 'Create Facility'}
                 </Button>
               </div>
             </form>
@@ -198,8 +236,11 @@ export default function FacilitiesPage() {
                   <DollarSign className="h-3.5 w-3.5" />
                   {formatCurrency(facility.price_per_hour)}/hr
                 </div>
-                {isSuperAdmin && (
-                  <div className="pt-2">
+                {canEdit(facility) && (
+                  <div className="pt-2 flex gap-2">
+                    <Button size="sm" variant="outline" onClick={() => startEdit(facility)}>
+                      Edit
+                    </Button>
                     <Button
                       size="sm"
                       variant="outline"
