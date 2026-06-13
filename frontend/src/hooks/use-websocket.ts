@@ -9,15 +9,24 @@ interface UseWebSocketOptions {
   onClose?: () => void
 }
 
+// WebSocket base resolution:
+//  - explicit NEXT_PUBLIC_WS_URL  → use it (any environment)
+//  - unset in development         → localhost (dev convenience)
+//  - unset in production          → '' = disabled (e.g. Hugging Face Spaces
+//    don't support Channels/WS, so don't even attempt — avoids console errors)
+const WS_BASE =
+  process.env.NEXT_PUBLIC_WS_URL ??
+  (process.env.NODE_ENV === 'production' ? '' : 'ws://localhost:8000')
+const WS_DISABLED = WS_BASE === ''
+
 export function useWebSocket(path: string, options: UseWebSocketOptions = {}) {
   const { accessToken } = useAuthStore()
   const wsRef = useRef<WebSocket | null>(null)
   const [connected, setConnected] = useState(false)
 
   const connect = useCallback(() => {
-    if (!accessToken || !path) return
-    const base = process.env.NEXT_PUBLIC_WS_URL ?? 'ws://localhost:8000'
-    const url = `${base}${path}?token=${accessToken}`
+    if (WS_DISABLED || !accessToken || !path) return
+    const url = `${WS_BASE}${path}?token=${accessToken}`
     const ws = new WebSocket(url)
     wsRef.current = ws
 
@@ -51,5 +60,5 @@ export function useWebSocket(path: string, options: UseWebSocketOptions = {}) {
     }
   }, [])
 
-  return { connected, send }
+  return { connected, send, disabled: WS_DISABLED }
 }
