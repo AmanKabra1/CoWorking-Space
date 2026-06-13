@@ -8,6 +8,7 @@ from drf_spectacular.utils import extend_schema
 from .models import User
 from .serializers import (
     UserRegistrationSerializer,
+    EmployeeJoinSerializer,
     UserLoginSerializer,
     UserProfileSerializer,
     UserListSerializer,
@@ -51,6 +52,30 @@ class RegisterView(APIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
+        user = serializer.save()
+        return Response(
+            {
+                'user': UserProfileSerializer(user).data,
+                'tokens': get_tokens_for_user(user),
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+
+@extend_schema(tags=['Auth'])
+class JoinView(APIView):
+    """
+    Public employee self-registration via a company join code.
+
+    No authentication required. The new user is always an Employee linked to the
+    company that owns the supplied code, then auto-logged-in (tokens returned).
+    """
+    permission_classes = [permissions.AllowAny]
+    serializer_class = EmployeeJoinSerializer
+
+    def post(self, request):
+        serializer = EmployeeJoinSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         user = serializer.save()
         return Response(
             {

@@ -96,6 +96,23 @@ class CompanyViewSet(viewsets.ModelViewSet):
         user = serializer.save(company=company)
         return Response(UserListSerializer(user).data, status=status.HTTP_201_CREATED)
 
+    @extend_schema(tags=['Companies'], responses=CompanySerializer)
+    @action(
+        detail=True,
+        methods=['post'],
+        url_path='regenerate-join-code',
+        permission_classes=[IsSuperAdminOrCompanyAdmin],
+    )
+    def regenerate_join_code(self, request, pk=None):
+        """
+        Issue a fresh join code (invalidates the old one). Super Admin for any
+        company; Company Admin only for their own (enforced by the queryset).
+        """
+        company = self.get_object()
+        company.join_code = Company.new_unique_join_code()
+        company.save(update_fields=['join_code', 'updated_at'])
+        return Response(CompanySerializer(company).data)
+
     @extend_schema(tags=['Companies'])
     @action(
         detail=True,
