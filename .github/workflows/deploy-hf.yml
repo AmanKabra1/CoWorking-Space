@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # ── EDIT THIS to "<your-hf-username>/<space-name>" ──
-      HF_SPACE: your-hf-username/coworkhub-backend
+      HF_SPACE: AK1B12B1/coworkhub-backend
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
