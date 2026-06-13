@@ -33,6 +33,7 @@ export interface Company {
   pan_number?: string
   industry?: string
   status: 'active' | 'inactive' | 'suspended'
+  join_code?: string
   employee_count: number
   created_at: string
   updated_at?: string
