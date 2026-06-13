@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -70,6 +71,14 @@ export default function PublicBookingPage() {
         <p className="mt-2 text-muted-foreground">
           Reserve a meeting room or facility — no account needed. We&apos;ll review your request and email you.
         </p>
+      </div>
+
+      <div className="mb-6 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+        <span>Part of a member company?</span>
+        <Link href="/login" className="font-medium text-primary hover:underline">Sign in</Link>
+        <span>or</span>
+        <Link href="/signup" className="font-medium text-primary hover:underline">join with your company code</Link>
+        <span>for faster internal bookings.</span>
       </div>
 
       {isLoading ? (

@@ -47,7 +47,7 @@ export default function ChatPage() {
     }
   }, [])
 
-  const { connected, send } = useWebSocket(
+  const { connected, send, disabled } = useWebSocket(
     roomId ? `/ws/chat/${roomId}/` : '',
     { onMessage: handleMessage }
   )
@@ -67,7 +67,7 @@ export default function ChatPage() {
     <div className="space-y-4 h-full flex flex-col">
       <PageHeader
         title="Company Chat"
-        description={connected ? '● Live' : '○ Connecting...'}
+        description={disabled ? '○ Unavailable' : connected ? '● Live' : '○ Connecting...'}
       />
 
       <Card className="flex-1 flex flex-col min-h-0">
@@ -78,7 +78,16 @@ export default function ChatPage() {
         </CardHeader>
 
         <CardContent className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
-          {messages.length === 0 && (
+          {disabled && (
+            <div className="rounded-lg border border-dashed p-6 text-center text-muted-foreground">
+              <p className="text-sm font-medium">Real-time chat isn’t available on this deployment</p>
+              <p className="text-xs mt-1">
+                Live chat needs a WebSocket server. To enable it, host the backend somewhere that
+                supports WebSockets and set <span className="font-mono">NEXT_PUBLIC_WS_URL</span>.
+              </p>
+            </div>
+          )}
+          {!disabled && messages.length === 0 && (
             <p className="text-sm text-center text-muted-foreground py-8">
               No messages yet. Say hello!
             </p>
