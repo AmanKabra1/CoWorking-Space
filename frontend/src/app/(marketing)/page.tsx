@@ -156,6 +156,15 @@ export default function MarketingHomePage() {
             </div>
           </Reveal>
 
+          <Reveal delay={420}>
+            <p className="mt-5 text-sm text-muted-foreground">
+              New employee?{' '}
+              <Link href="/signup" className="font-semibold text-primary hover:underline">
+                Join with your company code
+              </Link>
+            </p>
+          </Reveal>
+
           {/* The floating dashboard */}
           <Reveal delay={480}>
             <HeroMockup />

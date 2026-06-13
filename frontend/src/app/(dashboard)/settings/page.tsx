@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/store/auth'
-import { companySettingsService } from '@/lib/services'
+import { companySettingsService, companyService } from '@/lib/services'
 
 type Tab = 'profile' | 'appearance'
 
@@ -18,6 +18,7 @@ export default function SettingsPage() {
   const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState<Tab>('profile')
   const [saved, setSaved] = useState(false)
+  const [copied, setCopied] = useState<'code' | 'link' | null>(null)
 
   useEffect(() => {
     if (user && user.role === 'employee') {
@@ -66,8 +67,24 @@ export default function SettingsPage() {
     },
   })
 
+  const regenMutation = useMutation({
+    mutationFn: () => companyService.regenerateJoinCode(company!.id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['company-settings'] }),
+  })
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+  }
+
+  const copyToClipboard = async (kind: 'code' | 'link') => {
+    if (!company?.join_code) return
+    const text =
+      kind === 'code'
+        ? company.join_code
+        : `${window.location.origin}/signup?code=${company.join_code}`
+    await navigator.clipboard.writeText(text)
+    setCopied(kind)
+    setTimeout(() => setCopied(null), 2000)
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -98,6 +115,7 @@ export default function SettingsPage() {
       </div>
 
       {activeTab === 'profile' && (
+        <>
         <Card>
           <CardHeader>
             <CardTitle>Company Profile</CardTitle>
@@ -165,6 +183,42 @@ export default function SettingsPage() {
             )}
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Team Join Code</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Share this code with your team. Employees create their own accounts at{' '}
+              <span className="font-mono">/signup</span> and are added to{' '}
+              {company?.name ?? 'your company'} automatically — no manual setup needed.
+            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <code className="rounded-lg border bg-muted px-4 py-2 text-lg font-mono tracking-[0.3em]">
+                {company?.join_code ?? '—'}
+              </code>
+              <Button type="button" variant="outline" onClick={() => copyToClipboard('code')} disabled={!company?.join_code}>
+                {copied === 'code' ? 'Copied!' : 'Copy code'}
+              </Button>
+              <Button type="button" variant="outline" onClick={() => copyToClipboard('link')} disabled={!company?.join_code}>
+                {copied === 'link' ? 'Link copied!' : 'Copy invite link'}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => regenMutation.mutate()}
+                disabled={regenMutation.isPending || !company}
+              >
+                {regenMutation.isPending ? 'Regenerating…' : 'Regenerate'}
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Regenerating issues a new code and invalidates the old one — anyone who hasn’t joined yet will need the new code.
+            </p>
+          </CardContent>
+        </Card>
+        </>
       )}
 
       {activeTab === 'appearance' && (

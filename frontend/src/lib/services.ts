@@ -39,9 +39,21 @@ import type {
 } from '@/types'
 
 // ─── Auth ─────────────────────────────────────────────────
+export interface JoinPayload {
+  join_code: string
+  email: string
+  first_name: string
+  last_name: string
+  phone?: string
+  password: string
+  password_confirm: string
+}
+
 export const authService = {
   login: (email: string, password: string) =>
     api.post<{ user: User; tokens: { access: string; refresh: string } }>('/auth/login/', { email, password }).then(r => r.data),
+  join: (payload: JoinPayload) =>
+    api.post<{ user: User; tokens: { access: string; refresh: string } }>('/auth/join/', payload).then(r => r.data),
   logout: (refresh: string) =>
     api.post('/auth/logout/', { refresh }),
   me: () =>
@@ -74,6 +86,8 @@ export const companyService = {
     api.patch<Company>(`/companies/${id}/`, data).then(r => r.data),
   setStatus: (id: string, status: string) =>
     api.patch(`/companies/${id}/status/`, { status }),
+  regenerateJoinCode: (id: string) =>
+    api.post<Company>(`/companies/${id}/regenerate-join-code/`).then(r => r.data),
 }
 
 // ─── Facilities ───────────────────────────────────────────
