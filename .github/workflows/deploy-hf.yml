@@ -1,0 +1,40 @@
+name: Deploy backend to Hugging Face Space
+
+# Mirrors the backend/ folder to a Hugging Face Docker Space on every push to
+# master that touches the backend. The Space root == backend/ (Dockerfile,
+# requirements/, manage.py all sit at the top of backend/), so we push that
+# folder's contents as the Space repo and let HF rebuild the image.
+
+on:
+  push:
+    branches: [master]
+    paths: ["backend/**"]
+  workflow_dispatch: {}   # allow manual runs from the Actions tab
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      # ── EDIT THIS to "<your-hf-username>/<space-name>" ──
+      HF_SPACE: your-hf-username/coworkhub-backend
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Push backend/ to the HF Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          if [ -z "$HF_TOKEN" ]; then
+            echo "::error::HF_TOKEN secret is not set (Settings → Secrets → Actions)."; exit 1
+          fi
+          HF_USER="${HF_SPACE%%/*}"
+          cd backend
+          git init -q
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -q -m "sync from ${GITHUB_SHA}"
+          # Force-push: the Space is a deploy mirror, not a source of truth.
+          git push --force "https://${HF_USER}:${HF_TOKEN}@huggingface.co/spaces/${HF_SPACE}.git" HEAD:main
+          echo "Pushed backend/ to https://huggingface.co/spaces/${HF_SPACE}"
