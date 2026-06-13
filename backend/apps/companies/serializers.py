@@ -12,9 +12,9 @@ class CompanySerializer(serializers.ModelSerializer):
             'id', 'name', 'slug', 'email', 'phone',
             'gst_number', 'pan_number', 'address', 'city', 'state', 'pincode',
             'logo', 'website', 'status', 'contract_start', 'contract_end',
-            'notes', 'employee_count', 'created_at', 'updated_at',
+            'notes', 'join_code', 'employee_count', 'created_at', 'updated_at',
         ]
-        read_only_fields = ['id', 'slug', 'employee_count', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'slug', 'join_code', 'employee_count', 'created_at', 'updated_at']
 
     def get_employee_count(self, obj):
         return obj.employee_count
