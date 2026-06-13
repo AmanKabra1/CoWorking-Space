@@ -36,18 +36,32 @@ DATABASES = {
     }
 }
 
-# ─── Redis Cache ──────────────────────────────────────────
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': config('REDIS_URL', default='redis://localhost:6379/0'),
-        'OPTIONS': {'CLIENT_CLASS': 'django_redis.client.DefaultClient'},
-        'KEY_PREFIX': 'cwh',
-    }
-}
+# ─── Cache + sessions ─────────────────────────────────────
+# Use Redis when a broker is provided (e.g. Render). Hosts without managed
+# Redis (e.g. Hugging Face Spaces free) leave REDIS_URL unset — fall back to an
+# in-process cache and DB-backed sessions so the app runs on a single host with
+# no broker. The API is JWT-based, so it never depends on Redis.
+REDIS_URL = config('REDIS_URL', default='')
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-SESSION_CACHE_ALIAS = 'default'
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': REDIS_URL,
+            'OPTIONS': {'CLIENT_CLASS': 'django_redis.client.DefaultClient'},
+            'KEY_PREFIX': 'cwh',
+        }
+    }
+    SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+    SESSION_CACHE_ALIAS = 'default'
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'cwh-locmem',
+        }
+    }
+    SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 # ─── Security ─────────────────────────────────────────────
 SECURE_BROWSER_XSS_FILTER = True
@@ -57,7 +71,9 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 # Render terminates SSL at the proxy — trust the forwarded header instead of redirecting
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = True
+# Default on. Set SECURE_SSL_REDIRECT=False if the host's proxy doesn't forward
+# X-Forwarded-Proto (avoids a redirect loop, e.g. on some PaaS proxies).
+SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=True, cast=bool)
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 X_FRAME_OPTIONS = 'DENY'
