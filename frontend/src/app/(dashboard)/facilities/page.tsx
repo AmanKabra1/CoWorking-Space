@@ -13,6 +13,7 @@ import { facilityService, workspaceService } from '@/lib/services'
 import { useAuthStore } from '@/store/auth'
 import { formatCurrency } from '@/lib/utils'
 import { toast } from '@/hooks/use-toast'
+import { FacilityReviews } from '@/components/shared/FacilityReviews'
 
 const FACILITY_TYPES = [
   { value: 'conference_room', label: 'Conference Room' },
@@ -236,6 +237,11 @@ export default function FacilitiesPage() {
                   <DollarSign className="h-3.5 w-3.5" />
                   {formatCurrency(facility.price_per_hour)}/hr
                 </div>
+                <FacilityReviews
+                  facilityId={facility.id}
+                  avgRating={facility.avg_rating}
+                  reviewCount={facility.review_count}
+                />
                 {canEdit(facility) && (
                   <div className="pt-2 flex gap-2">
                     <Button size="sm" variant="outline" onClick={() => startEdit(facility)}>

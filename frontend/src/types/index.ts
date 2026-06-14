@@ -56,9 +56,19 @@ export interface Facility {
   floor_name?: string | null
   floor_number?: number
   owner_company?: string | null
+  avg_rating?: number | null
+  review_count?: number
   primary_image?: string
   amenities: string[]
   images: { id: string; image: string; is_primary: boolean }[]
+}
+
+export interface FacilityReview {
+  rating: number
+  comment: string
+  reviewer_name: string
+  company_name: string
+  created_at: string
 }
 
 export type BookingStatus = 'pending' | 'approved' | 'confirmed' | 'rejected' | 'cancelled' | 'completed'

@@ -106,6 +106,8 @@ export const facilityService = {
     api.patch<Facility>(`/facilities/${id}/`, data).then(r => r.data),
   remove: (id: string) =>
     api.delete(`/facilities/${id}/`).then(r => r.data),
+  reviews: (id: string) =>
+    api.get<import('@/types').FacilityReview[]>(`/facilities/${id}/reviews/`).then(r => r.data),
 }
 
 // ─── Bookings ─────────────────────────────────────────────
