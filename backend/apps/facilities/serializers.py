@@ -2,6 +2,19 @@ from rest_framework import serializers
 from .models import Facility, FacilityImage
 
 
+class _RatingMixin(serializers.Serializer):
+    """Adds avg_rating + review_count from the facility's booking reviews."""
+    avg_rating = serializers.SerializerMethodField()
+    review_count = serializers.SerializerMethodField()
+
+    def get_review_count(self, obj):
+        return obj.reviews.count()
+
+    def get_avg_rating(self, obj):
+        ratings = list(obj.reviews.values_list('rating', flat=True))
+        return round(sum(ratings) / len(ratings), 1) if ratings else None
+
+
 class FacilityImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = FacilityImage
@@ -9,7 +22,7 @@ class FacilityImageSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 
-class FacilityListSerializer(serializers.ModelSerializer):
+class FacilityListSerializer(_RatingMixin, serializers.ModelSerializer):
     building_name = serializers.CharField(source='building.name', read_only=True)
     floor_name = serializers.CharField(source='floor.name', read_only=True, default=None)
     primary_image = serializers.SerializerMethodField()
@@ -20,6 +33,7 @@ class FacilityListSerializer(serializers.ModelSerializer):
             'id', 'name', 'facility_type', 'building', 'building_name',
             'floor', 'floor_name', 'capacity', 'price_per_hour', 'price_per_day',
             'is_active', 'is_public', 'owner_company', 'description', 'primary_image',
+            'avg_rating', 'review_count',
         ]
 
     def get_primary_image(self, obj):
@@ -30,7 +44,7 @@ class FacilityListSerializer(serializers.ModelSerializer):
         return None
 
 
-class FacilitySerializer(serializers.ModelSerializer):
+class FacilitySerializer(_RatingMixin, serializers.ModelSerializer):
     building_name = serializers.CharField(source='building.name', read_only=True)
     floor_name = serializers.CharField(source='floor.name', read_only=True, default=None)
     owner_company_name = serializers.CharField(source='owner_company.name', read_only=True, default=None)
@@ -44,7 +58,8 @@ class FacilitySerializer(serializers.ModelSerializer):
             'owner_company', 'owner_company_name',
             'capacity', 'price_per_hour', 'price_per_day',
             'description', 'amenities', 'booking_rules',
-            'images', 'is_active', 'is_public', 'created_at', 'updated_at',
+            'images', 'is_active', 'is_public', 'avg_rating', 'review_count',
+            'created_at', 'updated_at',
         ]
         read_only_fields = ['id', 'owner_company', 'created_at', 'updated_at']
 

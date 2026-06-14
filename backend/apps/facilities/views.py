@@ -44,6 +44,23 @@ class FacilityViewSet(viewsets.ModelViewSet):
         else:
             serializer.save()
 
+    @extend_schema(tags=['Facilities'])
+    @action(detail=True, methods=['get'], url_path='reviews')
+    def reviews(self, request, pk=None):
+        """Recent reviews/comments left for this facility."""
+        facility = self.get_object()
+        reviews = facility.reviews.order_by('-created_at')[:30]
+        return Response([
+            {
+                'rating': r.rating,
+                'comment': r.comment,
+                'reviewer_name': r.reviewer_name,
+                'company_name': r.company_name,
+                'created_at': r.created_at.date().isoformat(),
+            }
+            for r in reviews
+        ])
+
     # ─── Availability ─────────────────────────────────────
 
     @extend_schema(tags=['Facilities'])
