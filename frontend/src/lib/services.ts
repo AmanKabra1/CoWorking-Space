@@ -282,7 +282,7 @@ export const paymentService = {
 // ─── Public (no-login) booking ────────────────────────────
 export const publicService = {
   facilities: () =>
-    api.get<PublicFacility[]>('/public/facilities/').then(r => r.data),
+    api.get<PaginatedResponse<PublicFacility>>('/public/facilities/').then(r => r.data.results ?? []),
   availability: (facilityId: string, date: string) =>
     api.get<{ booked_slots: { start: string; end: string }[] }>(
       `/public/facilities/${facilityId}/availability/`, { params: { date } }
