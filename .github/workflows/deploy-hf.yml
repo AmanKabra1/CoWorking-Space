@@ -36,5 +36,16 @@ jobs:
           git add .
           git commit -q -m "sync from ${GITHUB_SHA}"
           # Force-push: the Space is a deploy mirror, not a source of truth.
-          git push --force "https://${HF_USER}:${HF_TOKEN}@huggingface.co/spaces/${HF_SPACE}.git" HEAD:main
-          echo "Pushed backend/ to https://huggingface.co/spaces/${HF_SPACE}"
+          # HF occasionally returns 429 (rate limit) — e.g. when two pushes
+          # land close together — so retry with backoff before failing.
+          REMOTE="https://${HF_USER}:${HF_TOKEN}@huggingface.co/spaces/${HF_SPACE}.git"
+          for attempt in 1 2 3 4 5; do
+            if git push --force "$REMOTE" HEAD:main; then
+              echo "Pushed backend/ to https://huggingface.co/spaces/${HF_SPACE}"
+              exit 0
+            fi
+            echo "Push attempt ${attempt} failed; retrying in $((attempt * 15))s…"
+            sleep $((attempt * 15))
+          done
+          echo "::error::Failed to push to the HF Space after 5 attempts."
+          exit 1
