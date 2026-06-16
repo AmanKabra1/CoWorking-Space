@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { workspaceService } from '@/lib/services'
 import { useAuthStore } from '@/store/auth'
+import { Spinner } from '@/components/shared/Spinner'
 import { toast } from '@/hooks/use-toast'
 import { Building2, ChevronRight } from 'lucide-react'
 
@@ -95,13 +96,15 @@ export default function BuildingsPage() {
         <Card>
           <CardContent className="p-4">
             <form onSubmit={(e) => { e.preventDefault(); createBuilding.mutate() }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <fieldset disabled={createBuilding.isPending} className="contents">
               <div className="space-y-1.5"><Label>Name</Label><Input value={bForm.name} onChange={(e) => setBForm({ ...bForm, name: e.target.value })} required /></div>
               <div className="space-y-1.5"><Label>City</Label><Input value={bForm.city} onChange={(e) => setBForm({ ...bForm, city: e.target.value })} required /></div>
               <div className="space-y-1.5"><Label>State</Label><Input value={bForm.state} onChange={(e) => setBForm({ ...bForm, state: e.target.value })} required /></div>
               <div className="space-y-1.5"><Label>Pincode</Label><Input value={bForm.pincode} onChange={(e) => setBForm({ ...bForm, pincode: e.target.value })} required /></div>
               <div className="space-y-1.5 sm:col-span-2"><Label>Address</Label><Input value={bForm.address} onChange={(e) => setBForm({ ...bForm, address: e.target.value })} required /></div>
               <div className="space-y-1.5 sm:col-span-2"><Label>Description</Label><Input value={bForm.description} onChange={(e) => setBForm({ ...bForm, description: e.target.value })} /></div>
-              <div className="flex items-end"><Button type="submit" disabled={createBuilding.isPending}>{createBuilding.isPending ? 'Saving…' : 'Create Building'}</Button></div>
+              </fieldset>
+              <div className="flex items-end"><Button type="submit" disabled={createBuilding.isPending}>{createBuilding.isPending && <Spinner className="mr-2" />}{createBuilding.isPending ? 'Saving…' : 'Create Building'}</Button></div>
             </form>
           </CardContent>
         </Card>
@@ -163,9 +166,11 @@ export default function BuildingsPage() {
                     ))}
                   </div>
                   <form onSubmit={(e) => { e.preventDefault(); createFloor.mutate() }} className="grid grid-cols-1 sm:grid-cols-3 gap-3 border-t pt-4">
+                    <fieldset disabled={createFloor.isPending} className="contents">
                     <div className="space-y-1.5"><Label>Floor #</Label><Input type="number" value={fForm.floor_number} onChange={(e) => setFForm({ ...fForm, floor_number: e.target.value })} placeholder="0 = Ground" required /></div>
                     <div className="space-y-1.5"><Label>Name</Label><Input value={fForm.name} onChange={(e) => setFForm({ ...fForm, name: e.target.value })} placeholder="Ground Floor" required /></div>
-                    <div className="flex items-end"><Button type="submit" disabled={createFloor.isPending}>{createFloor.isPending ? 'Adding…' : 'Add Floor'}</Button></div>
+                    </fieldset>
+                    <div className="flex items-end"><Button type="submit" disabled={createFloor.isPending}>{createFloor.isPending && <Spinner className="mr-2" />}{createFloor.isPending ? 'Adding…' : 'Add Floor'}</Button></div>
                   </form>
                 </div>
               )}

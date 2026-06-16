@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { inventoryService, workspaceService } from '@/lib/services'
+import { Spinner } from '@/components/shared/Spinner'
 import { toast } from '@/hooks/use-toast'
 import type { InventoryCategory } from '@/types'
 
@@ -38,9 +39,9 @@ export default function InventoryPage() {
     name: '',
     category: 'pantry' as InventoryCategory,
     unit: 'pcs',
-    quantity: '0',
-    reorder_level: '0',
-    unit_cost: '0',
+    quantity: '',
+    reorder_level: '',
+    unit_cost: '',
   })
 
   const { data: items = [], isLoading } = useQuery({
@@ -56,12 +57,17 @@ export default function InventoryPage() {
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['inventory'] })
 
   const createMutation = useMutation({
-    mutationFn: () => inventoryService.create(form),
+    mutationFn: () => inventoryService.create({
+      ...form,
+      quantity: form.quantity || '0',
+      reorder_level: form.reorder_level || '0',
+      unit_cost: form.unit_cost || '0',
+    }),
     onSuccess: () => {
       toast({ title: 'Item added' })
       invalidate()
       setShowForm(false)
-      setForm({ building: '', name: '', category: 'pantry', unit: 'pcs', quantity: '0', reorder_level: '0', unit_cost: '0' })
+      setForm({ building: '', name: '', category: 'pantry', unit: 'pcs', quantity: '', reorder_level: '', unit_cost: '' })
     },
     onError: () => toast({ title: 'Could not add item', description: 'Check the fields and try again.', variant: 'destructive' }),
   })
@@ -145,6 +151,7 @@ export default function InventoryPage() {
               onSubmit={(e) => { e.preventDefault(); createMutation.mutate() }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
             >
+              <fieldset disabled={createMutation.isPending} className="contents">
               <div className="space-y-1.5">
                 <Label>Building</Label>
                 <select
@@ -179,18 +186,20 @@ export default function InventoryPage() {
               </div>
               <div className="space-y-1.5">
                 <Label>Opening quantity</Label>
-                <Input type="number" step="0.01" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} />
+                <Input type="number" step="0.01" min="0" placeholder="0" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} />
               </div>
               <div className="space-y-1.5">
                 <Label>Reorder level</Label>
-                <Input type="number" step="0.01" value={form.reorder_level} onChange={(e) => setForm({ ...form, reorder_level: e.target.value })} />
+                <Input type="number" step="0.01" min="0" placeholder="0" value={form.reorder_level} onChange={(e) => setForm({ ...form, reorder_level: e.target.value })} />
               </div>
               <div className="space-y-1.5">
                 <Label>Unit cost (₹)</Label>
-                <Input type="number" step="0.01" value={form.unit_cost} onChange={(e) => setForm({ ...form, unit_cost: e.target.value })} />
+                <Input type="number" step="0.01" min="0" placeholder="0" value={form.unit_cost} onChange={(e) => setForm({ ...form, unit_cost: e.target.value })} />
               </div>
+              </fieldset>
               <div className="flex items-end">
                 <Button type="submit" disabled={createMutation.isPending}>
+                  {createMutation.isPending && <Spinner className="mr-2" />}
                   {createMutation.isPending ? 'Saving…' : 'Save Item'}
                 </Button>
               </div>

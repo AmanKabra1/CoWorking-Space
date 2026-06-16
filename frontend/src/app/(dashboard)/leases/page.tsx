@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label'
 import { leaseService, companyService, workspaceService } from '@/lib/services'
 import { useAuthStore } from '@/store/auth'
 import { formatCurrency, formatDate } from '@/lib/utils'
+import { Spinner } from '@/components/shared/Spinner'
 import { toast } from '@/hooks/use-toast'
 
 const selectClass =
@@ -21,8 +22,8 @@ export default function LeasesPage() {
   const isSuperAdmin = useAuthStore(s => s.user?.role === 'super_admin')
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({
-    company: '', building: '', floor: '', seats_leased: '0',
-    start_date: '', end_date: '', monthly_rate: '0', notes: '',
+    company: '', building: '', floor: '', seats_leased: '',
+    start_date: '', end_date: '', monthly_rate: '', notes: '',
   })
 
   const { data: leases = [], isLoading } = useQuery({
@@ -56,14 +57,14 @@ export default function LeasesPage() {
       seats_leased: Number(form.seats_leased) || 0,
       start_date: form.start_date,
       end_date: form.end_date || null,
-      monthly_rate: form.monthly_rate,
+      monthly_rate: form.monthly_rate || '0',
       notes: form.notes || undefined,
     }),
     onSuccess: () => {
       toast({ title: 'Lease created' })
       queryClient.invalidateQueries({ queryKey: ['leases'] })
       setShowForm(false)
-      setForm({ company: '', building: '', floor: '', seats_leased: '0', start_date: '', end_date: '', monthly_rate: '0', notes: '' })
+      setForm({ company: '', building: '', floor: '', seats_leased: '', start_date: '', end_date: '', monthly_rate: '', notes: '' })
     },
     onError: (e: unknown) => {
       const data = (e as { response?: { data?: Record<string, string[] | string> } })?.response?.data
@@ -87,6 +88,7 @@ export default function LeasesPage() {
         <Card>
           <CardContent className="p-4">
             <form onSubmit={(e) => { e.preventDefault(); createMutation.mutate() }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <fieldset disabled={createMutation.isPending} className="contents">
               <div className="space-y-1.5">
                 <Label>Company (tenant)</Label>
                 <select className={selectClass} value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} required>
@@ -110,11 +112,11 @@ export default function LeasesPage() {
               </div>
               <div className="space-y-1.5">
                 <Label>Seats leased</Label>
-                <Input type="number" min="0" value={form.seats_leased} onChange={(e) => setForm({ ...form, seats_leased: e.target.value })} />
+                <Input type="number" min="0" placeholder="0" value={form.seats_leased} onChange={(e) => setForm({ ...form, seats_leased: e.target.value })} />
               </div>
               <div className="space-y-1.5">
                 <Label>Monthly rate (₹)</Label>
-                <Input type="number" step="0.01" value={form.monthly_rate} onChange={(e) => setForm({ ...form, monthly_rate: e.target.value })} />
+                <Input type="number" step="0.01" min="0" placeholder="0" value={form.monthly_rate} onChange={(e) => setForm({ ...form, monthly_rate: e.target.value })} />
               </div>
               <div className="space-y-1.5">
                 <Label>Start date</Label>
@@ -128,8 +130,10 @@ export default function LeasesPage() {
                 <Label>Notes</Label>
                 <Input value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
               </div>
+              </fieldset>
               <div className="flex items-end">
                 <Button type="submit" disabled={createMutation.isPending}>
+                  {createMutation.isPending && <Spinner className="mr-2" />}
                   {createMutation.isPending ? 'Saving…' : 'Create Lease'}
                 </Button>
               </div>

@@ -14,6 +14,7 @@ import { useAuthStore } from '@/store/auth'
 import { formatCurrency } from '@/lib/utils'
 import { toast } from '@/hooks/use-toast'
 import { FacilityReviews } from '@/components/shared/FacilityReviews'
+import { Spinner } from '@/components/shared/Spinner'
 
 const FACILITY_TYPES = [
   { value: 'conference_room', label: 'Conference Room' },
@@ -31,8 +32,14 @@ const selectClass =
 
 const EMPTY_FORM = {
   name: '', facility_type: 'meeting_room', building: '', floor: '',
-  capacity: '4', price_per_hour: '0', price_per_day: '0',
-  description: '', is_public: false,
+  capacity: '4', price_per_hour: '', price_per_day: '',
+  description: '', image_url: '', is_public: false,
+}
+
+// Show a real saved value when editing, but render 0 as blank so the field
+// isn't pre-filled with a "0" the user has to delete before typing.
+function numStr(v: string | number | null | undefined): string {
+  return v == null || Number(v) === 0 ? '' : String(v)
 }
 
 export default function FacilitiesPage() {
@@ -60,9 +67,10 @@ export default function FacilitiesPage() {
       building: f.building ?? '',
       floor: f.floor ?? '',
       capacity: String(f.capacity),
-      price_per_hour: String(f.price_per_hour),
-      price_per_day: String(f.price_per_day),
+      price_per_hour: numStr(f.price_per_hour),
+      price_per_day: numStr(f.price_per_day),
       description: f.description ?? '',
+      image_url: f.image_url ?? '',
       is_public: f.is_public,
     })
     setShowForm(true)
@@ -106,9 +114,10 @@ export default function FacilitiesPage() {
         building: form.building,
         floor: form.floor || null,
         capacity: Number(form.capacity) || 1,
-        price_per_hour: form.price_per_hour,
-        price_per_day: form.price_per_day,
+        price_per_hour: form.price_per_hour || '0',
+        price_per_day: form.price_per_day || '0',
         description: form.description,
+        image_url: form.image_url.trim(),
         is_public: form.is_public,
       } as never
       return editingId ? facilityService.update(editingId, payload) : facilityService.create(payload)
@@ -145,6 +154,7 @@ export default function FacilitiesPage() {
               onSubmit={(e) => { e.preventDefault(); saveMutation.mutate() }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
             >
+              <fieldset disabled={saveMutation.isPending} className="contents">
               <div className="space-y-1.5">
                 <Label>Name</Label>
                 <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
@@ -175,22 +185,44 @@ export default function FacilitiesPage() {
               </div>
               <div className="space-y-1.5">
                 <Label>Price / hour (₹)</Label>
-                <Input type="number" step="0.01" value={form.price_per_hour} onChange={(e) => setForm({ ...form, price_per_hour: e.target.value })} />
+                <Input type="number" step="0.01" min="0" placeholder="0" value={form.price_per_hour} onChange={(e) => setForm({ ...form, price_per_hour: e.target.value })} />
               </div>
               <div className="space-y-1.5">
                 <Label>Price / day (₹)</Label>
-                <Input type="number" step="0.01" value={form.price_per_day} onChange={(e) => setForm({ ...form, price_per_day: e.target.value })} />
+                <Input type="number" step="0.01" min="0" placeholder="0" value={form.price_per_day} onChange={(e) => setForm({ ...form, price_per_day: e.target.value })} />
               </div>
               <div className="space-y-1.5 sm:col-span-2">
                 <Label>Description</Label>
                 <Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
               </div>
+              <div className="space-y-1.5 sm:col-span-2 lg:col-span-3">
+                <Label>Cover image URL (optional)</Label>
+                <Input
+                  type="url"
+                  placeholder="https://i.ibb.co/…/room.jpg"
+                  value={form.image_url}
+                  onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Paste a hosted image link. Free hosts: upload at{' '}
+                  <a href="https://imgbb.com/" target="_blank" rel="noreferrer" className="text-primary hover:underline">imgbb.com</a>{' '}
+                  or{' '}
+                  <a href="https://postimages.org/" target="_blank" rel="noreferrer" className="text-primary hover:underline">postimages.org</a>{' '}
+                  and copy the direct link.
+                </p>
+                {form.image_url.trim() && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={form.image_url} alt="Preview" className="mt-2 h-28 w-auto rounded-md border object-cover" />
+                )}
+              </div>
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" checked={form.is_public} onChange={(e) => setForm({ ...form, is_public: e.target.checked })} />
                 Open for public (no-login) booking
               </label>
+              </fieldset>
               <div className="flex items-end">
                 <Button type="submit" disabled={saveMutation.isPending}>
+                  {saveMutation.isPending && <Spinner className="mr-2" />}
                   {saveMutation.isPending ? 'Saving…' : editingId ? 'Save Changes' : 'Create Facility'}
                 </Button>
               </div>
