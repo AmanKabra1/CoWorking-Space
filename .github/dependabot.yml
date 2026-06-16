@@ -1,7 +1,9 @@
 version: 2
 
 # Explicit Dependabot config for the three ecosystems in this repo.
-# Each ecosystem groups all updates into a single weekly PR to keep noise low.
+# Each ecosystem groups updates into a single weekly PR to keep noise low.
+# Major-version bumps are ignored — they tend to be breaking (e.g. Tailwind
+# v3→v4, zod 3→4) and need manual migration, so handle those by hand.
 updates:
   # ── Python backend (requirements/*.txt live in this directory) ──
   - package-ecosystem: "pip"
@@ -9,6 +11,9 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       backend-python:
         patterns:
@@ -20,6 +25,9 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       frontend-npm:
         patterns:
@@ -30,6 +38,9 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       github-actions:
         patterns:
