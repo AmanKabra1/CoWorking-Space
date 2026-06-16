@@ -97,11 +97,17 @@ if config('USE_S3', default=False, cast=bool):
     AWS_QUERYSTRING_AUTH = True   # signed URLs (private files)
     AWS_QUERYSTRING_EXPIRE = 3600  # 1-hour download link
 
-# ─── Email via Brevo SMTP ─────────────────────────────────
+# ─── Email via Brevo ──────────────────────────────────────
+# Primary path is the Brevo HTTP API (see apps/notifications/email.py) because
+# HF Docker Spaces block outbound SMTP ports. BREVO_API_KEY must be a Brevo
+# v3 API key (starts with "xkeysib-"). SMTP settings are kept as a fallback
+# for environments where outbound SMTP works.
+BREVO_API_KEY = config('BREVO_API_KEY', default='')
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp-relay.brevo.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = config('BREVO_EMAIL_USER')
-EMAIL_HOST_PASSWORD = config('BREVO_API_KEY')
+EMAIL_TIMEOUT = 15  # never let a blocked SMTP socket hang the request
+EMAIL_HOST_USER = config('BREVO_EMAIL_USER', default='')
+EMAIL_HOST_PASSWORD = config('BREVO_API_KEY', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@coworkhub.com')

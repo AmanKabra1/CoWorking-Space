@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { aiService } from '@/lib/services'
 import { useAuthStore } from '@/store/auth'
+import { Spinner } from '@/components/shared/Spinner'
 import { Sparkles, Send } from 'lucide-react'
 
 type Msg = { role: 'user' | 'assistant'; text: string }
@@ -91,7 +92,9 @@ export default function AIAssistantPage() {
           ))}
           {chat.isPending && (
             <div className="flex justify-start">
-              <div className="bg-muted rounded-lg px-3 py-2 text-sm text-muted-foreground">Thinking…</div>
+              <div className="bg-muted rounded-lg px-3 py-2 text-sm text-muted-foreground flex items-center gap-2">
+                <Spinner /> Thinking…
+              </div>
             </div>
           )}
           <div ref={endRef} />
