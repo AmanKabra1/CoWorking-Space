@@ -1,0 +1,36 @@
+version: 2
+
+# Explicit Dependabot config for the three ecosystems in this repo.
+# Each ecosystem groups all updates into a single weekly PR to keep noise low.
+updates:
+  # ── Python backend (requirements/*.txt live in this directory) ──
+  - package-ecosystem: "pip"
+    directory: "/backend/requirements"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      backend-python:
+        patterns:
+          - "*"
+
+  # ── Next.js frontend ──
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      frontend-npm:
+        patterns:
+          - "*"
+
+  # ── GitHub Actions used by the workflows ──
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
