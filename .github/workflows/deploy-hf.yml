@@ -19,7 +19,7 @@ jobs:
       HF_SPACE: AK1B12B1/coworkhub-backend
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Push backend/ to the HF Space
         env:
