@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
@@ -43,7 +43,7 @@ function firstApiError(err: unknown): string | null {
   return null
 }
 
-export default function SignupPage() {
+function SignupForm() {
   const router = useRouter()
   const codeFromUrl = useSearchParams().get('code') ?? ''
   const { setTokens, setUser } = useAuthStore()
@@ -184,5 +184,15 @@ export default function SignupPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function SignupPage() {
+  // useSearchParams() (read in SignupForm) must sit under a Suspense boundary,
+  // otherwise `next build` fails to prerender this page.
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-sidebar to-sidebar/80" />}>
+      <SignupForm />
+    </Suspense>
   )
 }
