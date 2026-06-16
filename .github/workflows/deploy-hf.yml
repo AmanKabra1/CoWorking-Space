@@ -1,13 +1,13 @@
 name: Deploy backend to Hugging Face Space
 
 # Mirrors the backend/ folder to a Hugging Face Docker Space on every push to
-# master that touches the backend. The Space root == backend/ (Dockerfile,
+# main that touches the backend. The Space root == backend/ (Dockerfile,
 # requirements/, manage.py all sit at the top of backend/), so we push that
 # folder's contents as the Space repo and let HF rebuild the image.
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths: ["backend/**"]
   workflow_dispatch: {}   # allow manual runs from the Actions tab
 
