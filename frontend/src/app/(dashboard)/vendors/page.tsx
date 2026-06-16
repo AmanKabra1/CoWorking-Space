@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { vendorService, vendorBillService, workspaceService } from '@/lib/services'
 import { formatCurrency, formatDate } from '@/lib/utils'
+import { Spinner } from '@/components/shared/Spinner'
 import { toast } from '@/hooks/use-toast'
 import { Receipt, IndianRupee, Clock, AlertTriangle } from 'lucide-react'
 import type { VendorCategory, VendorBillStatus } from '@/types'
@@ -49,7 +50,7 @@ export default function VendorsPage() {
 
   const [billForm, setBillForm] = useState({
     vendor: '', building: '', bill_number: '', bill_date: '',
-    due_date: '', amount: '0', tax_amount: '0', description: '',
+    due_date: '', amount: '', tax_amount: '', description: '',
   })
 
   const { data: vendors = [] } = useQuery({ queryKey: ['vendors'], queryFn: () => vendorService.list() })
@@ -76,13 +77,15 @@ export default function VendorsPage() {
   const createBill = useMutation({
     mutationFn: () => vendorBillService.create({
       ...billForm,
+      amount: billForm.amount || '0',
+      tax_amount: billForm.tax_amount || '0',
       due_date: billForm.due_date || null,
     }),
     onSuccess: () => {
       toast({ title: 'Bill recorded' })
       invalidateAll()
       setShowBillForm(false)
-      setBillForm({ vendor: '', building: '', bill_number: '', bill_date: '', due_date: '', amount: '0', tax_amount: '0', description: '' })
+      setBillForm({ vendor: '', building: '', bill_number: '', bill_date: '', due_date: '', amount: '', tax_amount: '', description: '' })
     },
     onError: () => toast({ title: 'Could not record bill', description: 'Check the fields.', variant: 'destructive' }),
   })
@@ -133,6 +136,7 @@ export default function VendorsPage() {
               onSubmit={(e) => { e.preventDefault(); createVendor.mutate() }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
             >
+              <fieldset disabled={createVendor.isPending} className="contents">
               <div className="space-y-1.5">
                 <Label>Vendor name</Label>
                 <Input value={vendorForm.name} onChange={(e) => setVendorForm({ ...vendorForm, name: e.target.value })} required />
@@ -162,8 +166,10 @@ export default function VendorsPage() {
                 <Label>GST number</Label>
                 <Input value={vendorForm.gst_number} onChange={(e) => setVendorForm({ ...vendorForm, gst_number: e.target.value })} />
               </div>
+              </fieldset>
               <div className="flex items-end">
                 <Button type="submit" disabled={createVendor.isPending}>
+                  {createVendor.isPending && <Spinner className="mr-2" />}
                   {createVendor.isPending ? 'Saving…' : 'Save Vendor'}
                 </Button>
               </div>
@@ -180,6 +186,7 @@ export default function VendorsPage() {
               onSubmit={(e) => { e.preventDefault(); createBill.mutate() }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
             >
+              <fieldset disabled={createBill.isPending} className="contents">
               <div className="space-y-1.5">
                 <Label>Vendor</Label>
                 <select className={selectClass} value={billForm.vendor} onChange={(e) => setBillForm({ ...billForm, vendor: e.target.value })} required>
@@ -208,18 +215,20 @@ export default function VendorsPage() {
               </div>
               <div className="space-y-1.5">
                 <Label>Amount (₹)</Label>
-                <Input type="number" step="0.01" value={billForm.amount} onChange={(e) => setBillForm({ ...billForm, amount: e.target.value })} />
+                <Input type="number" step="0.01" min="0" placeholder="0" value={billForm.amount} onChange={(e) => setBillForm({ ...billForm, amount: e.target.value })} />
               </div>
               <div className="space-y-1.5">
                 <Label>Tax (₹)</Label>
-                <Input type="number" step="0.01" value={billForm.tax_amount} onChange={(e) => setBillForm({ ...billForm, tax_amount: e.target.value })} />
+                <Input type="number" step="0.01" min="0" placeholder="0" value={billForm.tax_amount} onChange={(e) => setBillForm({ ...billForm, tax_amount: e.target.value })} />
               </div>
               <div className="space-y-1.5 sm:col-span-2">
                 <Label>Description</Label>
                 <Input value={billForm.description} onChange={(e) => setBillForm({ ...billForm, description: e.target.value })} />
               </div>
+              </fieldset>
               <div className="flex items-end">
                 <Button type="submit" disabled={createBill.isPending}>
+                  {createBill.isPending && <Spinner className="mr-2" />}
                   {createBill.isPending ? 'Saving…' : 'Save Bill'}
                 </Button>
               </div>

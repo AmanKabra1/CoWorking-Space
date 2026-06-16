@@ -14,5 +14,5 @@ class PublicFacilitySerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'facility_type', 'facility_type_display',
             'building_name', 'capacity', 'price_per_hour', 'price_per_day',
-            'description', 'amenities',
+            'description', 'image_url', 'amenities',
         ]

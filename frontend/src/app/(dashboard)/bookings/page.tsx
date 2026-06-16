@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { ExportButtons } from '@/components/shared/ExportButtons'
 import { StatusBadge } from '@/components/shared/StatusBadge'
+import { Spinner } from '@/components/shared/Spinner'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -179,6 +180,7 @@ export default function BookingsPage() {
               onSubmit={(e) => { e.preventDefault(); createMutation.mutate() }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
             >
+              <fieldset disabled={createMutation.isPending} className="contents">
               <div className="space-y-1.5">
                 <Label>Facility</Label>
                 <select
@@ -233,8 +235,10 @@ export default function BookingsPage() {
                 <Label>Purpose</Label>
                 <Input value={form.purpose} onChange={(e) => setForm({ ...form, purpose: e.target.value })} placeholder="e.g. Team standup" required />
               </div>
+              </fieldset>
               <div className="flex items-end">
                 <Button type="submit" disabled={createMutation.isPending}>
+                  {createMutation.isPending && <Spinner className="mr-2" />}
                   {createMutation.isPending ? 'Submitting…' : 'Request Booking'}
                 </Button>
               </div>

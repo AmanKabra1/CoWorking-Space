@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { seatListingService, workspaceService } from '@/lib/services'
 import { useAuthStore } from '@/store/auth'
 import { formatCurrency } from '@/lib/utils'
+import { Spinner } from '@/components/shared/Spinner'
 import { toast } from '@/hooks/use-toast'
 
 const selectClass =
@@ -22,7 +23,7 @@ export default function SeatListingsPage() {
   const isCompanyAdmin = useAuthStore(s => s.user?.role === 'company_admin')
   const [showForm, setShowForm] = useState(false)
   const [openListing, setOpenListing] = useState<string | null>(null)
-  const [form, setForm] = useState({ building: '', title: '', seats_available: '1', monthly_rate: '0', description: '' })
+  const [form, setForm] = useState({ building: '', title: '', seats_available: '1', monthly_rate: '', description: '' })
 
   const { data: listings = [], isLoading } = useQuery({
     queryKey: ['seat-listings'],
@@ -48,11 +49,11 @@ export default function SeatListingsPage() {
     mutationFn: () => seatListingService.create({
       building: form.building, title: form.title,
       seats_available: Number(form.seats_available) || 1,
-      monthly_rate: form.monthly_rate, description: form.description || undefined,
+      monthly_rate: form.monthly_rate || '0', description: form.description || undefined,
     }),
     onSuccess: () => {
       toast({ title: 'Listing posted' }); invalidate(); setShowForm(false)
-      setForm({ building: '', title: '', seats_available: '1', monthly_rate: '0', description: '' })
+      setForm({ building: '', title: '', seats_available: '1', monthly_rate: '', description: '' })
     },
     onError: () => toast({ title: 'Could not post listing', variant: 'destructive' }),
   })
@@ -77,6 +78,7 @@ export default function SeatListingsPage() {
       {showForm && isCompanyAdmin && (
         <Card><CardContent className="p-4">
           <form onSubmit={(e) => { e.preventDefault(); createListing.mutate() }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <fieldset disabled={createListing.isPending} className="contents">
             <div className="space-y-1.5"><Label>Title</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g. 10 hot desks, 5th floor" required /></div>
             <div className="space-y-1.5">
               <Label>Building</Label>
@@ -86,9 +88,10 @@ export default function SeatListingsPage() {
               </select>
             </div>
             <div className="space-y-1.5"><Label>Seats available</Label><Input type="number" min="1" value={form.seats_available} onChange={(e) => setForm({ ...form, seats_available: e.target.value })} /></div>
-            <div className="space-y-1.5"><Label>Monthly rate (₹)</Label><Input type="number" step="0.01" value={form.monthly_rate} onChange={(e) => setForm({ ...form, monthly_rate: e.target.value })} /></div>
+            <div className="space-y-1.5"><Label>Monthly rate (₹)</Label><Input type="number" step="0.01" min="0" placeholder="0" value={form.monthly_rate} onChange={(e) => setForm({ ...form, monthly_rate: e.target.value })} /></div>
             <div className="space-y-1.5 sm:col-span-2"><Label>Description</Label><Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
-            <div className="flex items-end"><Button type="submit" disabled={createListing.isPending}>{createListing.isPending ? 'Posting…' : 'Post Listing'}</Button></div>
+            </fieldset>
+            <div className="flex items-end"><Button type="submit" disabled={createListing.isPending}>{createListing.isPending && <Spinner className="mr-2" />}{createListing.isPending ? 'Posting…' : 'Post Listing'}</Button></div>
           </form>
         </CardContent></Card>
       )}

@@ -32,7 +32,8 @@ class FacilityListSerializer(_RatingMixin, serializers.ModelSerializer):
         fields = [
             'id', 'name', 'facility_type', 'building', 'building_name',
             'floor', 'floor_name', 'capacity', 'price_per_hour', 'price_per_day',
-            'is_active', 'is_public', 'owner_company', 'description', 'primary_image',
+            'is_active', 'is_public', 'owner_company', 'description',
+            'image_url', 'primary_image',
             'avg_rating', 'review_count',
         ]
 
@@ -41,7 +42,8 @@ class FacilityListSerializer(_RatingMixin, serializers.ModelSerializer):
         if img:
             request = self.context.get('request')
             return request.build_absolute_uri(img.image.url) if request else img.image.url
-        return None
+        # Fall back to a hosted image URL when no file was uploaded.
+        return obj.image_url or None
 
 
 class FacilitySerializer(_RatingMixin, serializers.ModelSerializer):
@@ -57,7 +59,7 @@ class FacilitySerializer(_RatingMixin, serializers.ModelSerializer):
             'building', 'building_name', 'floor', 'floor_name',
             'owner_company', 'owner_company_name',
             'capacity', 'price_per_hour', 'price_per_day',
-            'description', 'amenities', 'booking_rules',
+            'description', 'image_url', 'amenities', 'booking_rules',
             'images', 'is_active', 'is_public', 'avg_rating', 'review_count',
             'created_at', 'updated_at',
         ]

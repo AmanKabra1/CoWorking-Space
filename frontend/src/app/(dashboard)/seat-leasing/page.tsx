@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label'
 import { seatLeaseService } from '@/lib/services'
 import { useAuthStore } from '@/store/auth'
 import { formatCurrency, formatDate } from '@/lib/utils'
+import { Spinner } from '@/components/shared/Spinner'
 import { toast } from '@/hooks/use-toast'
 
 const selectClass =
@@ -23,7 +24,7 @@ export default function SeatLeasingPage() {
   const [pendingId, setPendingId] = useState<string | null>(null)
   const [form, setForm] = useState({
     desk: '', lessee_name: '', lessee_email: '', lessee_phone: '', lessee_company: '',
-    start_date: '', end_date: '', monthly_rate: '0', notes: '',
+    start_date: '', end_date: '', monthly_rate: '', notes: '',
   })
 
   const { data: leases = [], isLoading } = useQuery({
@@ -50,14 +51,14 @@ export default function SeatLeasingPage() {
       lessee_company: form.lessee_company || undefined,
       start_date: form.start_date,
       end_date: form.end_date || null,
-      monthly_rate: form.monthly_rate,
+      monthly_rate: form.monthly_rate || '0',
       notes: form.notes || undefined,
     }),
     onSuccess: () => {
       toast({ title: 'Seat sub-leased' })
       invalidate()
       setShowForm(false)
-      setForm({ desk: '', lessee_name: '', lessee_email: '', lessee_phone: '', lessee_company: '', start_date: '', end_date: '', monthly_rate: '0', notes: '' })
+      setForm({ desk: '', lessee_name: '', lessee_email: '', lessee_phone: '', lessee_company: '', start_date: '', end_date: '', monthly_rate: '', notes: '' })
     },
     onError: (e: unknown) => {
       const data = (e as { response?: { data?: Record<string, string[] | string> } })?.response?.data
@@ -94,6 +95,7 @@ export default function SeatLeasingPage() {
               onSubmit={(e) => { e.preventDefault(); createMutation.mutate() }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
             >
+              <fieldset disabled={createMutation.isPending} className="contents">
               <div className="space-y-1.5">
                 <Label>Desk</Label>
                 <select className={selectClass} value={form.desk} onChange={(e) => setForm({ ...form, desk: e.target.value })} required>
@@ -121,7 +123,7 @@ export default function SeatLeasingPage() {
               </div>
               <div className="space-y-1.5">
                 <Label>Monthly rate (₹)</Label>
-                <Input type="number" step="0.01" value={form.monthly_rate} onChange={(e) => setForm({ ...form, monthly_rate: e.target.value })} />
+                <Input type="number" step="0.01" min="0" placeholder="0" value={form.monthly_rate} onChange={(e) => setForm({ ...form, monthly_rate: e.target.value })} />
               </div>
               <div className="space-y-1.5">
                 <Label>Start date</Label>
@@ -131,8 +133,10 @@ export default function SeatLeasingPage() {
                 <Label>End date (optional)</Label>
                 <Input type="date" value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} />
               </div>
+              </fieldset>
               <div className="flex items-end">
                 <Button type="submit" disabled={createMutation.isPending}>
+                  {createMutation.isPending && <Spinner className="mr-2" />}
                   {createMutation.isPending ? 'Saving…' : 'Create Sub-lease'}
                 </Button>
               </div>

@@ -58,6 +58,7 @@ export interface Facility {
   owner_company?: string | null
   avg_rating?: number | null
   review_count?: number
+  image_url?: string
   primary_image?: string
   amenities: string[]
   images: { id: string; image: string; is_primary: boolean }[]
@@ -486,6 +487,7 @@ export interface PublicFacility {
   price_per_hour: string
   price_per_day: string
   description: string
+  image_url?: string
   amenities: string[]
 }
 

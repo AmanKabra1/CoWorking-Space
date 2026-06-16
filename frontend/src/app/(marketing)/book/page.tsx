@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { publicService } from '@/lib/services'
 import { formatCurrency } from '@/lib/utils'
+import { Spinner } from '@/components/shared/Spinner'
 import { CheckCircle2, Clock } from 'lucide-react'
 
 const selectClass =
@@ -94,6 +95,7 @@ export default function PublicBookingPage() {
               onSubmit={(e) => { e.preventDefault(); mutation.mutate() }}
               className="space-y-5"
             >
+              <fieldset disabled={mutation.isPending} className="space-y-5 border-0 p-0 m-0">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5 sm:col-span-2">
                   <Label>Facility</Label>
@@ -112,6 +114,10 @@ export default function PublicBookingPage() {
                   </select>
                   {selected?.description && (
                     <p className="text-xs text-muted-foreground">{selected.description}</p>
+                  )}
+                  {selected?.image_url && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={selected.image_url} alt={selected.name} className="mt-2 h-40 w-full rounded-md border object-cover" />
                   )}
                 </div>
 
@@ -181,7 +187,9 @@ export default function PublicBookingPage() {
                 </p>
               )}
 
+              </fieldset>
               <Button type="submit" className="w-full" disabled={mutation.isPending}>
+                {mutation.isPending && <Spinner className="mr-2" />}
                 {mutation.isPending ? 'Submitting…' : 'Request Booking'}
               </Button>
             </form>

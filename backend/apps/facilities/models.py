@@ -42,6 +42,14 @@ class Facility(TimeStampedModel):
     price_per_hour = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     price_per_day = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     description = models.TextField(blank=True)
+    # A hosted image URL (e.g. from a free host like ImgBB / Postimages /
+    # Cloudinary). Preferred over uploaded files because the production host
+    # (HF Docker Space) has ephemeral storage — uploads don't survive restarts,
+    # but a URL stored in the DB does.
+    image_url = models.URLField(
+        max_length=500, blank=True,
+        help_text='Link to a hosted cover image. Free hosts: imgbb.com, postimages.org.',
+    )
     amenities = models.JSONField(
         default=list, blank=True,
         help_text='List of amenities, e.g. ["WiFi", "Projector", "AC", "Whiteboard"]',
