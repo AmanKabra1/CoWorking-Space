@@ -20,6 +20,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=150)
     last_name = models.CharField(max_length=150)
     phone = models.CharField(max_length=15, blank=True)
+    department = models.CharField(max_length=100, blank=True)
+    employee_number = models.CharField(max_length=50, blank=True)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=EMPLOYEE)
     company = models.ForeignKey(
         'companies.Company',

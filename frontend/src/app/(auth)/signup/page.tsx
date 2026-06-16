@@ -22,6 +22,8 @@ const schema = z
     last_name: z.string().min(1, 'Last name is required'),
     email: z.string().email('Enter a valid email'),
     phone: z.string().optional(),
+    department: z.string().optional(),
+    employee_number: z.string().optional(),
     password: z.string().min(8, 'At least 8 characters'),
     password_confirm: z.string().min(1, 'Confirm your password'),
   })
@@ -64,6 +66,8 @@ function SignupForm() {
         first_name: data.first_name,
         last_name: data.last_name,
         phone: data.phone || undefined,
+        department: data.department || undefined,
+        employee_number: data.employee_number || undefined,
         password: data.password,
         password_confirm: data.password_confirm,
       })
@@ -134,6 +138,17 @@ function SignupForm() {
             <div className="space-y-1.5">
               <Label htmlFor="phone">Phone <span className="text-muted-foreground font-normal">(optional)</span></Label>
               <Input id="phone" type="tel" autoComplete="tel" disabled={loading} {...register('phone')} />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="department">Department <span className="text-muted-foreground font-normal">(optional)</span></Label>
+                <Input id="department" disabled={loading} {...register('department')} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="employee_number">Employee no. <span className="text-muted-foreground font-normal">(optional)</span></Label>
+                <Input id="employee_number" disabled={loading} {...register('employee_number')} />
+              </div>
             </div>
 
             <div className="space-y-1.5">

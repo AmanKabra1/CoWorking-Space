@@ -45,6 +45,8 @@ export interface JoinPayload {
   first_name: string
   last_name: string
   phone?: string
+  department?: string
+  employee_number?: string
   password: string
   password_confirm: string
 }

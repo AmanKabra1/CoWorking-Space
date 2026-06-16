@@ -52,6 +52,8 @@ class EmployeeJoinSerializer(serializers.Serializer):
     first_name = serializers.CharField(max_length=150)
     last_name = serializers.CharField(max_length=150)
     phone = serializers.CharField(max_length=15, required=False, allow_blank=True)
+    department = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    employee_number = serializers.CharField(max_length=50, required=False, allow_blank=True)
     password = serializers.CharField(
         write_only=True, validators=[validate_password], style={'input_type': 'password'}
     )
@@ -112,8 +114,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'email', 'first_name', 'last_name', 'full_name',
-            'phone', 'role', 'avatar', 'company', 'company_name',
-            'is_active', 'created_at', 'updated_at',
+            'phone', 'department', 'employee_number', 'role', 'avatar',
+            'company', 'company_name', 'is_active', 'created_at', 'updated_at',
         ]
         read_only_fields = ['id', 'email', 'role', 'created_at', 'updated_at']
 
@@ -129,7 +131,8 @@ class UserListSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'email', 'full_name', 'first_name', 'last_name',
-            'role', 'phone', 'company', 'company_name', 'is_active', 'created_at',
+            'role', 'phone', 'department', 'employee_number',
+            'company', 'company_name', 'is_active', 'created_at',
         ]
 
     def get_full_name(self, obj):
