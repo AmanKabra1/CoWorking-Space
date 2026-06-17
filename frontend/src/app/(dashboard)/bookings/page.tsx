@@ -162,7 +162,7 @@ export default function BookingsPage() {
     <div className="space-y-4">
       <PageHeader
         title="Bookings"
-        description="Manage facility reservations"
+        description="Member reservations (tied to your company). Public visitors book without an account at /book."
         action={
           <div className="flex items-center gap-2">
             <ExportButtons filename="bookings" onExport={(f) => bookingService.export(f)} />

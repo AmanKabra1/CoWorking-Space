@@ -74,12 +74,20 @@ export default function PublicBookingPage() {
         </p>
       </div>
 
-      <div className="mb-6 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
-        <span>Part of a member company?</span>
-        <Link href="/login" className="font-medium text-primary hover:underline">Sign in</Link>
-        <span>or</span>
-        <Link href="/signup" className="font-medium text-primary hover:underline">join with your company code</Link>
-        <span>for faster internal bookings.</span>
+      <div className="mb-6 rounded-lg border bg-muted/40 px-4 py-3 text-sm">
+        <p className="font-medium text-foreground">Two ways to book:</p>
+        <ul className="mt-1.5 space-y-1 text-muted-foreground">
+          <li>
+            <span className="font-medium text-foreground">Guest (this page)</span> — no account needed.
+            Fill in the form below; we review your request and email you payment details if it&apos;s approved.
+          </li>
+          <li>
+            <span className="font-medium text-foreground">Member company</span>{' '}
+            <Link href="/login" className="font-medium text-primary hover:underline">sign in</Link>{' '}or{' '}
+            <Link href="/signup" className="font-medium text-primary hover:underline">join with your company code</Link>{' '}
+            for free internal bookings (no payment).
+          </li>
+        </ul>
       </div>
 
       {isLoading ? (
